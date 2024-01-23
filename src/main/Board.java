@@ -4,8 +4,6 @@ package main;
 import pieces.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 
@@ -17,7 +15,7 @@ public class Board extends JPanel {
     public Piece selectedPiece;
     Input input = new Input(this);
     public int enPassantTile = -1;
-    public int whiteTurn = 1;
+    public int whiteTurN = 1;
 
     protected int typeOfpro;
 
@@ -42,7 +40,7 @@ public class Board extends JPanel {
     }
 
     public void makeMove(Move move){
-        whiteTurn = whiteTurn*-1;
+        whiteTurN = whiteTurN *-1;
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
         }
@@ -124,7 +122,7 @@ public class Board extends JPanel {
     }
     public  boolean isYourTurn(Move move){
         if (move.piece.isWhite){
-            if (whiteTurn==1){
+            if (whiteTurN ==1){
                 return true;
             }
             else{
@@ -132,7 +130,7 @@ public class Board extends JPanel {
             }
         }
         else{
-            if (whiteTurn==-1){
+            if (whiteTurN ==-1){
                 return true;
             }
             else{
