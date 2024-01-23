@@ -15,7 +15,7 @@ public class Board extends JPanel {
     public Piece selectedPiece;
     Input input = new Input(this);
     public int enPassantTile = -1;
-    public int whiteTurN = 1;
+    public int whiteturn = 1;
 
     protected int typeOfpro;
 
@@ -40,7 +40,7 @@ public class Board extends JPanel {
     }
 
     public void makeMove(Move move){
-        whiteTurN = whiteTurN *-1;
+        whiteturn = whiteturn *-1;
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
         }
@@ -122,7 +122,7 @@ public class Board extends JPanel {
     }
     public  boolean isYourTurn(Move move){
         if (move.piece.isWhite){
-            if (whiteTurN ==1){
+            if (whiteturn ==1){
                 return true;
             }
             else{
@@ -130,7 +130,7 @@ public class Board extends JPanel {
             }
         }
         else{
-            if (whiteTurN ==-1){
+            if (whiteturn ==-1){
                 return true;
             }
             else{
