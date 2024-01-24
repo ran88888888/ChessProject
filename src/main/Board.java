@@ -14,9 +14,9 @@ public class Board extends JPanel {
     ArrayList<Piece> piecesList= new ArrayList<>();
     public Piece selectedPiece;
     Input input = new Input(this);
+    CheckScanner checkScanner = new CheckScanner(this);
     public int enPassantTile = -1;
     public int whiteturn = 1;
-
     protected int typeOfpro;
 
 
@@ -118,6 +118,9 @@ public class Board extends JPanel {
         if (!isYourTurn(move)){
             return false;
         }
+        if (checkScanner.isKingChecked(move)){
+            return false;
+        }
         return true;
     }
     public  boolean isYourTurn(Move move){
@@ -146,6 +149,14 @@ public class Board extends JPanel {
     }
     public int getTileNum(int col,int row){
         return  row * rows +col;
+    }
+    public Piece findKing(boolean isWhite){
+        for(Piece piece: piecesList){
+            if (piece.isWhite == isWhite && piece.name.equals("King")){
+                return piece;
+            }
+        }
+        return null;
     }
     public void addPieces(){
 

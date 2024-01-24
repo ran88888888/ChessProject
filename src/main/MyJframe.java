@@ -14,6 +14,7 @@ public class MyJframe implements ActionListener{
     JButton knightButton = new JButton("Make a knight");
     JButton queenButton = new JButton("Make a queen");
     JLabel promoteMsg = new JLabel("promotion option");
+    JLabel whatYouPromoteTo = new JLabel("YOU WILL PROMOTE TO A QUEEN");
 
 
     public MyJframe() {
@@ -48,6 +49,10 @@ public class MyJframe implements ActionListener{
         queenButton.addActionListener(this);
         sidePanel.add(queenButton);
 
+        whatYouPromoteTo.setVerticalTextPosition(JLabel.TOP);
+        whatYouPromoteTo.setFont(new Font("Serif", Font.BOLD, 9));
+        sidePanel.add(whatYouPromoteTo);
+
         frame.add(board);
         frame.add(sidePanel);
         frame.setVisible(true);
@@ -57,18 +62,22 @@ public class MyJframe implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == rookButton) {
             System.out.println("rook");
+            whatYouPromoteTo.setText("YOU WILL PROMOTE TO A ROOK");
             this.board.typeOfpro = 1;
         }
         if (e.getSource() == bishopButton) {
             System.out.println("bishop");
+            whatYouPromoteTo.setText("YOU WILL PROMOTE TO A BISHOP");
             this.board.typeOfpro = 2;
         }
         if (e.getSource() == knightButton) {
             System.out.println("knight");
+            whatYouPromoteTo.setText("YOU WILL PROMOTE TO A KNIGHT");
             this.board.typeOfpro = 3;
         }
         if (e.getSource() == queenButton) {
             System.out.println("queen");
+            whatYouPromoteTo.setText("YOU WILL PROMOTE TO A QUEEN");
             this.board.typeOfpro = 4;
         }
     }

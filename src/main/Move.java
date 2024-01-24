@@ -8,7 +8,7 @@ public class Move {
     int newCol;
     int newRow;
 
-    Piece piece;
+    public Piece piece;
     Piece captured;
 
     public Move(Board board,Piece piece,int newCol,int newRow){
