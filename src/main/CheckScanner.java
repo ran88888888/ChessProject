@@ -1,39 +1,38 @@
 package main;
 
-import main.Board;
-import main.Move;
 import pieces.Piece;
 
 public class CheckScanner {
-    Board board;
-    public CheckScanner(Board board){
-        this.board=board;
+    private static final int BOARD_SIZE = 8;
+    private Board board;
+
+    public CheckScanner(Board board) {
+        this.board = board;
     }
-    public boolean isKingChecked(Move move){
+
+    public boolean isKingChecked(Move move) {
         Piece king = board.findKing(move.piece.isWhite);
-        assert king!=null;
+        assert king != null;
 
         int kingCol = king.col;
         int kingRow = king.row;
 
-        if (board.selectedPiece!=null && board.selectedPiece.name.equals("king")){
+        if (board.selectedPiece != null && board.selectedPiece.name.equalsIgnoreCase("king")) {
             kingCol = move.newCol;
             kingRow = move.newRow;
         }
-        return hitByRook(move.newCol, move.newRow, king, kingCol, kingRow,0,1)|| // up
-                hitByRook(move.newCol, move.newRow, king,kingCol,kingRow,1,0)|| // right
-                hitByRook(move.newCol, move.newRow, king,kingCol,kingRow,0,-1)|| //down
-                hitByRook(move.newCol, move.newRow, king,kingCol,kingRow,-1,0)|| // left
 
-                hitByBishop(move.newCol, move.newRow, king,kingCol,kingRow,-1,-1)|| //up left
-                hitByBishop(move.newCol, move.newRow, king,kingCol,kingRow,1,-1)|| // up right
-                hitByBishop(move.newCol, move.newRow, king,kingCol,kingRow,1,1)|| //down right
-                hitByBishop(move.newCol, move.newRow, king,kingCol,kingRow,-1,1 )|| // down left
-
-                hitByKnight(move.newCol, move.newRow, king,kingCol,kingRow)||
-                hitByPawn(move.newCol, move.newRow, king,kingCol,kingRow)||
-                hitByKing(king,kingCol,kingRow);
-
+        return hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, 0, 1) || // up
+                hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, 1, 0) || // right
+                hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, 0, -1) || // down
+                hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, -1, 0) || // left
+                hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, -1, -1) || // up left
+                hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, 1, -1) || // up right
+                hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, 1, 1) || // down right
+                hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, -1, 1) || // down left
+                hitByKnight(move.newCol, move.newRow, king, kingCol, kingRow) ||
+                hitByPawn(move.newCol, move.newRow, king, kingCol, kingRow) ||
+                hitByKing(king, kingCol, kingRow);
     }
     public boolean hitByRook(int col,int row, Piece king, int kingCol, int kingRow, int colVal, int rowVal){
         //int i;
