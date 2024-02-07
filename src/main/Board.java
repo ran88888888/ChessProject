@@ -42,7 +42,7 @@ public class Board extends JPanel {
         }
         return null;
     }
-
+//checksomthimg
     public void makeMove(Move move){
         isDuckMovedThisTurn();
         if(move.piece.name.equals("Pawn")){
