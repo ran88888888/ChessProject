@@ -28,7 +28,7 @@ public class Pawn extends Piece{
             return true;
 
 // Push pawn 2
-        if (isFirstMove && col == this.col && row == this.row - colorIndex * 2 && board.getPiece(col, row) == null)
+        if (isFirstMove && col == this.col && row == this.row - colorIndex * 2 && board.getPiece(col, row) == null && board.getPiece(col, row+colorIndex) == null)
             return true;
 
 // Capture left
@@ -51,5 +51,6 @@ public class Pawn extends Piece{
         return false;
 
     }
+
 
 }

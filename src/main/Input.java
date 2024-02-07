@@ -20,6 +20,7 @@ public class Input extends MouseAdapter {
         int col = e.getX() / board.titlesize;
         int row = e.getY() / board.titlesize;
 
+
         Piece piece = board.getPiece(col, row);
         if (piece != null) {
             board.selectedPiece = piece;

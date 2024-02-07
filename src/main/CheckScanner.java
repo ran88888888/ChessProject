@@ -17,7 +17,7 @@ public class CheckScanner {
         int kingCol = king.col;
         int kingRow = king.row;
 
-        if (board.selectedPiece != null && board.selectedPiece.name.equalsIgnoreCase("king")) {
+        if (board.selectedPiece != null && board.selectedPiece.name.equals("King")) {
             kingCol = move.newCol;
             kingRow = move.newRow;
         }
@@ -26,14 +26,18 @@ public class CheckScanner {
                 hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, 1, 0) || // right
                 hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, 0, -1) || // down
                 hitByRook(move.newCol, move.newRow, king, kingCol, kingRow, -1, 0) || // left
+
                 hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, -1, -1) || // up left
                 hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, 1, -1) || // up right
                 hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, 1, 1) || // down right
                 hitByBishop(move.newCol, move.newRow, king, kingCol, kingRow, -1, 1) || // down left
+
                 hitByKnight(move.newCol, move.newRow, king, kingCol, kingRow) ||
                 hitByPawn(move.newCol, move.newRow, king, kingCol, kingRow) ||
                 hitByKing(king, kingCol, kingRow);
     }
+
+
     public boolean hitByRook(int col,int row, Piece king, int kingCol, int kingRow, int colVal, int rowVal){
         //int i;
         for (int i =1;i<8;i++){
@@ -51,7 +55,7 @@ public class CheckScanner {
         return false;
     }
     public boolean hitByBishop(int col,int row, Piece king, int kingCol, int kingRow, int colVal, int rowVal){
-        //int i;
+
         for (int i =1;i<8;i++){
             if(kingCol - (i*colVal)==col && kingRow - (i *rowVal)== row){
                 break;

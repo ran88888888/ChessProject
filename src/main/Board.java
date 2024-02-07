@@ -12,12 +12,16 @@ public class Board extends JPanel {
     int cols=8;
     int rows = 8;
     ArrayList<Piece> piecesList= new ArrayList<>();
+    
     public Piece selectedPiece;
     Input input = new Input(this);
     CheckScanner checkScanner = new CheckScanner(this);
     public int enPassantTile = -1;
     public int whiteturn = 1;
     protected int typeOfpro;
+    public int gameOver = 0;
+    public Duck duck = new Duck(this,4,4);
+
 
 
     public Board()
@@ -40,10 +44,21 @@ public class Board extends JPanel {
     }
 
     public void makeMove(Move move){
-        whiteturn = whiteturn *-1;
+        isDuckMovedThisTurn();
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
         }
+        if (move.piece.name.equals("Duck")){
+            duck.isDuckMoved = true;
+        }
+        if (!move.piece.name.equals("Duck")){
+            duck.youCanPlayWithDuck = true;
+            duck.isDuckMoved = false;
+        }
+        else if(move.piece.name.equals("King")) {
+            moveKing(move);
+        }
+
         else {
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
@@ -51,10 +66,31 @@ public class Board extends JPanel {
             move.piece.yPos = move.newRow * titlesize;
 
             move.piece.isFirstMove = false;
-
             capture(move.captured);
         }
 
+    }
+    private void moveKing(Move move) {
+        if(Math.abs(move.newCol-move.piece.col)==2) {
+            Piece rook;
+            if(move.piece.col< move.newCol) {
+                rook = this.getPiece(7, move.piece.row);
+                rook.col =5;
+            }
+            else {
+                rook = this.getPiece(0, move.piece.row);
+                rook.col = 3;
+            }
+            rook.xPos = rook.col* titlesize;
+        }
+        move.piece.col = move.newCol;
+        move.piece.row = move.newRow;
+        move.piece.xPos = move.newCol * titlesize;
+        move.piece.yPos = move.newRow * titlesize;
+
+        move.piece.isFirstMove = false;
+
+        capture(move.captured);
     }
 
     private void movePawn(Move move) {
@@ -101,15 +137,22 @@ public class Board extends JPanel {
        }
         capture(move.piece);
     }
+    public void isDuckMovedThisTurn(){
+        if (duck.isDuckMoved){
+            whiteturn = whiteturn *-1;
+            duck.isDuckMoved = false;
+            duck.youCanPlayWithDuck = false;
+        }
+    }
 
     public void capture(Piece piece){
         piecesList.remove(piece);
     }
     public boolean isValidMove(Move move){
-        if(sameTeam(move.piece,move.captured)){
+        if(!move.piece.isValidMovement(move.newCol, move.newRow)){
             return false;
         }
-        if(!move.piece.isValidMovement(move.newCol, move.newRow)){
+        if(sameTeam(move.piece,move.captured)){
             return false;
         }
         if(move.piece.movmentCollidWithPiece(move.newCol, move.newRow)){
@@ -158,6 +201,14 @@ public class Board extends JPanel {
         }
         return null;
     }
+    public boolean hasValMove(Piece piece){
+        if (piece.name.equals("Rook")){
+
+        }
+
+        return false;
+    }
+
     public void addPieces(){
 
         //black pieces
@@ -196,6 +247,9 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,5,6,true));
         piecesList.add(new Pawn(this,6,6,true));
         piecesList.add(new Pawn(this,7,6,true));
+
+        //duck
+
 
 
     }
