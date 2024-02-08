@@ -7,9 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Duck extends Piece {
-    private BufferedImage sheet; // Declaring BufferedImage as a private field
-    public boolean isDuckMoved;
-    public boolean youCanPlayWithDuck = false;
+
+    public boolean youCanPlayWithDuck;
     public Duck(Board board, int col, int row) {
         super(board);
         this.col = col;
@@ -17,12 +16,13 @@ public class Duck extends Piece {
         this.xPos = col * board.titlesize;
         this.yPos = row * board.titlesize;
         this.name = "Duck";
-        this.isDuckMoved = false;
+        this.youCanPlayWithDuck = false;
+        this.isWhite = true;
 
 
         try {
             // Load the image from the resource file in the constructor
-            sheet = ImageIO.read(ClassLoader.getSystemResourceAsStream("Duck.png"));
+            this.sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream("Duck.png")).getScaledInstance(board.titlesize,board.titlesize, BufferedImage.SCALE_SMOOTH);
         } catch (IOException e) {
             e.printStackTrace();
         }

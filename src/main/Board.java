@@ -44,21 +44,21 @@ public class Board extends JPanel {
     }
 //checksomthimg
     public void makeMove(Move move){
-        isDuckMovedThisTurn();
+
+        if (!move.piece.name.equals("Duck")){
+            duck.youCanPlayWithDuck = true;
+        }
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
         }
         if (move.piece.name.equals("Duck")){
-            duck.isDuckMoved = true;
+            duck.youCanPlayWithDuck = false;
+            whiteturn = whiteturn *-1;
+            duck.isWhite = whiteturn == 1 ? true: false;
         }
-        if (!move.piece.name.equals("Duck")){
-            duck.youCanPlayWithDuck = true;
-            duck.isDuckMoved = false;
-        }
-        else if(move.piece.name.equals("King")) {
+        if(move.piece.name.equals("King")) {
             moveKing(move);
         }
-
         else {
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
@@ -137,18 +137,18 @@ public class Board extends JPanel {
        }
         capture(move.piece);
     }
-    public void isDuckMovedThisTurn(){
-        if (duck.isDuckMoved){
-            whiteturn = whiteturn *-1;
-            duck.isDuckMoved = false;
-            duck.youCanPlayWithDuck = false;
-        }
-    }
+
 
     public void capture(Piece piece){
         piecesList.remove(piece);
     }
     public boolean isValidMove(Move move){
+        if(duck.youCanPlayWithDuck && !move.piece.name.equals("Duck")){
+            return false;
+        }
+        if (move.captured == duck){
+            return false;
+        }
         if(!move.piece.isValidMovement(move.newCol, move.newRow)){
             return false;
         }
@@ -201,13 +201,6 @@ public class Board extends JPanel {
         }
         return null;
     }
-    public boolean hasValMove(Piece piece){
-        if (piece.name.equals("Rook")){
-
-        }
-
-        return false;
-    }
 
     public void addPieces(){
 
@@ -247,9 +240,8 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,5,6,true));
         piecesList.add(new Pawn(this,6,6,true));
         piecesList.add(new Pawn(this,7,6,true));
-
         //duck
-
+        piecesList.add(duck);
 
 
     }
