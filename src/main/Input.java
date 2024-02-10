@@ -4,8 +4,6 @@ import pieces.Piece;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 public class Input extends MouseAdapter {
 
@@ -17,8 +15,8 @@ public class Input extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        int col = e.getX() / board.titlesize;
-        int row = e.getY() / board.titlesize;
+        int col = e.getX() / board.tilesize;
+        int row = e.getY() / board.tilesize;
 
 
         Piece piece = board.getPiece(col, row);
@@ -30,8 +28,8 @@ public class Input extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent e) {
         if (board.selectedPiece != null) {
-            board.selectedPiece.xPos = e.getX() - board.titlesize / 2;
-            board.selectedPiece.yPos = e.getY() - board.titlesize / 2;
+            board.selectedPiece.xPos = e.getX() - board.tilesize / 2;
+            board.selectedPiece.yPos = e.getY() - board.tilesize / 2;
 
             board.repaint();
         }
@@ -39,8 +37,8 @@ public class Input extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        int col = e.getX() / board.titlesize;
-        int row = e.getY() / board.titlesize;
+        int col = e.getX() / board.tilesize;
+        int row = e.getY() / board.tilesize;
 
         if (board.selectedPiece != null) {
             Move move = new Move(board, board.selectedPiece, col, row);
@@ -51,8 +49,8 @@ public class Input extends MouseAdapter {
             }
             else
             {
-                board.selectedPiece.xPos = board.selectedPiece.col * board.titlesize;
-                board.selectedPiece.yPos = board.selectedPiece.row * board.titlesize;
+                board.selectedPiece.xPos = board.selectedPiece.col * board.tilesize;
+                board.selectedPiece.yPos = board.selectedPiece.row * board.tilesize;
             }
 
             board.selectedPiece = null;

@@ -8,11 +8,11 @@ import java.util.ArrayList;
 
 
 public class Board extends JPanel {
-    public int titlesize = 85;
+    public int tilesize = 85;
     int cols=8;
     int rows = 8;
     ArrayList<Piece> piecesList= new ArrayList<>();
-    
+    boolean firstMove = true;
     public Piece selectedPiece;
     Input input = new Input(this);
     CheckScanner checkScanner = new CheckScanner(this);
@@ -20,13 +20,26 @@ public class Board extends JPanel {
     public int whiteturn = 1;
     protected int typeOfpro;
     public int gameOver = 0;
-    public Duck duck = new Duck(this,4,4);
+    public Duck duck =new Duck(this,4,3);
+    public BitBoard rookBitBoard = new BitBoard("9295429630892703873");
+    public BitBoard knightBitBoard = new BitBoard("4755801206503243842");
+    public BitBoard bishopBitBoard = new BitBoard("2594073385365405732");
+    public BitBoard queenBitBoard = new BitBoard("576460752303423496");
+    public BitBoard kingBitBoard = new BitBoard("1152921504606846992");
+    public BitBoard pawnBitBoard = new BitBoard("71776119061282560");
+    public BitBoard whiteBitBoard = new BitBoard("18446462598732840960");
+    public BitBoard blackBitBoard = new BitBoard("65535");
+    public BitBoard allBitBoard = new BitBoard("18446462598732906495");
+    public BitBoard duckBitBoard = new BitBoard("268435456");
+
+
+
 
 
 
     public Board()
     {
-        this.setPreferredSize(new Dimension(cols*titlesize,rows*titlesize));
+        this.setPreferredSize(new Dimension(cols* tilesize,rows* tilesize));
         this.typeOfpro = 4;
         this.addMouseListener(input);
         this.addMouseMotionListener(input);
@@ -42,32 +55,34 @@ public class Board extends JPanel {
         }
         return null;
     }
-//checksomthimg
-    public void makeMove(Move move){
 
+    public void makeMove(Move move){
         if (!move.piece.name.equals("Duck")){
             duck.youCanPlayWithDuck = true;
-        }
-        if(move.piece.name.equals("Pawn")){
-            movePawn(move);
         }
         if (move.piece.name.equals("Duck")){
             duck.youCanPlayWithDuck = false;
             whiteturn = whiteturn *-1;
             duck.isWhite = whiteturn == 1 ? true: false;
         }
+        if(move.piece.name.equals("Pawn")){
+            movePawn(move);
+        }
         if(move.piece.name.equals("King")) {
             moveKing(move);
         }
-        else {
+        else{
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
-            move.piece.xPos = move.newCol * titlesize;
-            move.piece.yPos = move.newRow * titlesize;
+            move.piece.xPos = move.newCol * tilesize;
+            move.piece.yPos = move.newRow * tilesize;
 
             move.piece.isFirstMove = false;
             capture(move.captured);
         }
+        bitBoardChange(move);
+
+
 
     }
     private void moveKing(Move move) {
@@ -81,16 +96,16 @@ public class Board extends JPanel {
                 rook = this.getPiece(0, move.piece.row);
                 rook.col = 3;
             }
-            rook.xPos = rook.col* titlesize;
+            rook.xPos = rook.col* tilesize;
         }
         move.piece.col = move.newCol;
         move.piece.row = move.newRow;
-        move.piece.xPos = move.newCol * titlesize;
-        move.piece.yPos = move.newRow * titlesize;
+        move.piece.xPos = move.newCol * tilesize;
+        move.piece.yPos = move.newRow * tilesize;
 
         move.piece.isFirstMove = false;
-
         capture(move.captured);
+
     }
 
     private void movePawn(Move move) {
@@ -111,11 +126,10 @@ public class Board extends JPanel {
         }
         move.piece.col = move.newCol;
         move.piece.row = move.newRow;
-        move.piece.xPos = move.newCol * titlesize;
-        move.piece.yPos = move.newRow * titlesize;
+        move.piece.xPos = move.newCol * tilesize;
+        move.piece.yPos = move.newRow * tilesize;
 
         move.piece.isFirstMove = false;
-
         capture(move.captured);
 
     }
@@ -136,6 +150,50 @@ public class Board extends JPanel {
                break;
        }
         capture(move.piece);
+    }
+    public void bitBoardChange(Move move){
+        int clearPos = ((move.oldRow*8)+move.oldCol);
+        int setPos = ((move.newRow*8)+move.newCol);
+
+        if (move.piece.name.equals("Duck")){
+            duckBitBoard.clearBit(clearPos);
+            duckBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("King")){
+            kingBitBoard.clearBit(clearPos);
+            kingBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("Queen")){
+            queenBitBoard.clearBit(clearPos);
+            queenBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("Rook")){
+            rookBitBoard.clearBit(clearPos);
+            rookBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("Knight")){
+            knightBitBoard.clearBit(clearPos);
+            knightBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("Bishop")){
+            bishopBitBoard.clearBit(clearPos);
+            bishopBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.name.equals("Pawn")){
+            pawnBitBoard.clearBit(clearPos);
+            pawnBitBoard.toggleBit(setPos);
+        }
+        if (move.piece.isWhite){
+            whiteBitBoard.clearBit(clearPos);
+            whiteBitBoard.toggleBit(setPos);
+        }
+        if (!move.piece.isWhite){
+            blackBitBoard.clearBit(clearPos);
+            blackBitBoard.toggleBit(setPos);
+        }
+        allBitBoard.clearBit(clearPos);
+        allBitBoard.toggleBit(setPos);
+
     }
 
 
@@ -243,7 +301,6 @@ public class Board extends JPanel {
         //duck
         piecesList.add(duck);
 
-
     }
 
     public void paint(Graphics g){
@@ -252,7 +309,7 @@ public class Board extends JPanel {
         for (int r=0;r<rows;r++){
             for (int c=0;c<cols;c++){
                 g2d.setColor((c+r)%2==0? new Color(229, 191, 163):new Color(161, 96, 21));
-                g2d.fillRect(c*titlesize,r*titlesize,titlesize,titlesize);
+                g2d.fillRect(c* tilesize,r* tilesize, tilesize, tilesize);
             }
         }
         //paint where you can go with the valid moves
@@ -261,7 +318,7 @@ public class Board extends JPanel {
                 for (int c=0;c<cols;c++){
                     if(isValidMove(new Move(this,selectedPiece,c,r))){
                         g2d.setColor(new Color(41, 201, 77,120));
-                        g2d.fillRect(c*titlesize,r*titlesize,titlesize,titlesize);
+                        g2d.fillRect(c* tilesize,r* tilesize, tilesize, tilesize);
                     }
 
                 }

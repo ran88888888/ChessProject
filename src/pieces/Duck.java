@@ -13,8 +13,8 @@ public class Duck extends Piece {
         super(board);
         this.col = col;
         this.row = row;
-        this.xPos = col * board.titlesize;
-        this.yPos = row * board.titlesize;
+        this.xPos = col * board.tilesize;
+        this.yPos = row * board.tilesize;
         this.name = "Duck";
         this.youCanPlayWithDuck = false;
         this.isWhite = true;
@@ -22,7 +22,7 @@ public class Duck extends Piece {
 
         try {
             // Load the image from the resource file in the constructor
-            this.sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream("Duck.png")).getScaledInstance(board.titlesize,board.titlesize, BufferedImage.SCALE_SMOOTH);
+            this.sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream("Duck.png")).getScaledInstance(board.tilesize,board.tilesize, BufferedImage.SCALE_SMOOTH);
         } catch (IOException e) {
             e.printStackTrace();
         }

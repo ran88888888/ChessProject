@@ -13,6 +13,9 @@ public class MyJframe implements ActionListener{
     JButton bishopButton = new JButton("Make a bishop");
     JButton knightButton = new JButton("Make a knight");
     JButton queenButton = new JButton("Make a queen");
+    JButton blackplaySide = new JButton("play with black");
+    JButton whiteplaySide = new JButton("play with white");
+    JLabel whatToPlayWith = new JLabel("what do you wamt to play with");
     JLabel promoteMsg = new JLabel("promotion option");
     JLabel whatYouPromoteTo = new JLabel("YOU WILL PROMOTE TO A QUEEN");
 

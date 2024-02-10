@@ -3,7 +3,6 @@ package pieces;
 import main.Board;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageFilter;
 
 public class King extends Piece{
 
@@ -11,12 +10,12 @@ public class King extends Piece{
         super(board);
         this.col=col;
         this.row=row;
-        this.xPos = col* board.titlesize;
-        this.yPos = row* board.titlesize;
+        this.xPos = col* board.tilesize;
+        this.yPos = row* board.tilesize;
         this.isWhite=isWhite;
         this.name = "King";
 
-        this.sprite = sheet.getSubimage(0*sheetScale,isWhite ? 0 : sheetScale,sheetScale,sheetScale).getScaledInstance(board.titlesize,board.titlesize, BufferedImage.SCALE_SMOOTH);
+        this.sprite = sheet.getSubimage(0*sheetScale,isWhite ? 0 : sheetScale,sheetScale,sheetScale).getScaledInstance(board.tilesize,board.tilesize, BufferedImage.SCALE_SMOOTH);
 
     }
     public boolean isValidMovement(int col,int row){
