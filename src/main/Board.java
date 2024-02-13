@@ -21,16 +21,16 @@ public class Board extends JPanel {
     protected int typeOfpro;
     public int gameOver = 0;
     public Duck duck =new Duck(this,4,3);
-    public BitBoard rookBitBoard = new BitBoard("9295429630892703873");
-    public BitBoard knightBitBoard = new BitBoard("4755801206503243842");
-    public BitBoard bishopBitBoard = new BitBoard("2594073385365405732");
-    public BitBoard queenBitBoard = new BitBoard("576460752303423496");
-    public BitBoard kingBitBoard = new BitBoard("1152921504606846992");
-    public BitBoard pawnBitBoard = new BitBoard("71776119061282560");
-    public BitBoard whiteBitBoard = new BitBoard("18446462598732840960");
-    public BitBoard blackBitBoard = new BitBoard("65535");
-    public BitBoard allBitBoard = new BitBoard("18446462598732906495");
-    public BitBoard duckBitBoard = new BitBoard("268435456");
+    public BitBoard rookBitBoard;
+    public BitBoard knightBitBoard;
+    public BitBoard bishopBitBoard;
+    public BitBoard queenBitBoard ;
+    public BitBoard kingBitBoard ;
+    public BitBoard pawnBitBoard;
+    public BitBoard whiteBitBoard;
+    public BitBoard blackBitBoard ;
+    public BitBoard allBitBoard ;
+    public BitBoard duckBitBoard ;
 
 
 
@@ -43,7 +43,16 @@ public class Board extends JPanel {
         this.typeOfpro = 4;
         this.addMouseListener(input);
         this.addMouseMotionListener(input);
-
+        rookBitBoard = new BitBoard(0b1000000100000000000000000000000000000000000000000000000010000001L);
+        knightBitBoard = new BitBoard(0b0100001000000000000000000000000000000000000000000000000001000010L);
+        bishopBitBoard = new BitBoard(0b0010010000000000000000000000000000000000000000000000000000100100L);
+        queenBitBoard = new BitBoard(0b0000100000000000000000000000000000000000000000000000000000001000L);
+        kingBitBoard = new BitBoard(0b0001000000000000000000000000000000000000000000000000000000010000L);
+        pawnBitBoard = new BitBoard(0b0000000011111111000000000000000000000000000000001111111100000000L);
+        whiteBitBoard = new BitBoard(0b1111111111111111000000000000000000000000000000000000000000000000L);
+        blackBitBoard = new BitBoard(0b0000000000000000000000000000000000000000000000001111111111111111L);
+        allBitBoard = new BitBoard(0b1111111111111111000000000000000000010000000000001111111111111111L);
+        duckBitBoard = new BitBoard(0b0000000000000000000000000000000000010000000000000000000000000000L);
         addPieces();
     }
 
@@ -193,6 +202,7 @@ public class Board extends JPanel {
         }
         allBitBoard.clearBit(clearPos);
         allBitBoard.toggleBit(setPos);
+        System.out.println(allBitBoard.toBinaryString());
 
     }
 

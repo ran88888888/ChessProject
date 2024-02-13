@@ -5,27 +5,12 @@ public class BitBoard {
 
     public BitBoard()
     {
-        bitboard = 0;
+        bitboard = 0L;
     }
 
     public BitBoard(long number)
     {
         bitboard = number;
-    }
-
-    public BitBoard(String bits)
-    {
-        if (bits.length() > 64)
-        {
-            bits = bits.substring(0, 64);
-        }
-        try
-        {
-            bitboard = Long.parseLong(bits, 2);
-        } catch (NumberFormatException e)
-        {
-            bitboard = 0;
-        }
     }
 
     public int bitSetCount()
@@ -35,21 +20,21 @@ public class BitBoard {
 
     public void clearBit(int position)
     {
-        long temp = 1;
+        long temp = 1L;
         temp = ~(temp << position);
         bitboard = bitboard & temp;
     }
 
     public void toggleBit(int position)
     {
-        long temp = 1;
+        long temp = 1L;
         temp = temp << position;
         bitboard = bitboard ^ temp;
     }
 
     public boolean isBitSet(int position)
     {
-        long temp = 1;
+        long temp = 1L;
         temp = temp << position;
         return (bitboard & temp) != 0;
     }
@@ -61,14 +46,14 @@ public class BitBoard {
 
     public long getRank(int rankNumber)
     {
-        long temp = Long.parseUnsignedLong("255");
+        long temp = 255L;
         temp = temp << (8 * (rankNumber - 1));
         return temp & bitboard;
     }
 
     public long getFile(int fileNumber)
     {
-        long temp = Long.parseUnsignedLong("72340172838076673");
+        long temp = 72340172838076673L;
         temp = temp << (fileNumber - 1);
         return temp & bitboard;
     }
