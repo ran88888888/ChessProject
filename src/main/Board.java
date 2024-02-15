@@ -1,10 +1,13 @@
 package main;
 
 
+import artificialPlayer.Evaluations;
 import pieces.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Board extends JPanel {
@@ -31,6 +34,7 @@ public class Board extends JPanel {
     public BitBoard blackBitBoard ;
     public BitBoard allBitBoard ;
     public BitBoard duckBitBoard ;
+    public static Map<String, BitBoard> bitboardMap = new HashMap<>();
 
 
 
@@ -39,6 +43,7 @@ public class Board extends JPanel {
 
     public Board()
     {
+        new Evaluations(this);
         this.setPreferredSize(new Dimension(cols* tilesize,rows* tilesize));
         this.typeOfpro = 4;
         this.addMouseListener(input);
@@ -53,7 +58,22 @@ public class Board extends JPanel {
         blackBitBoard = new BitBoard(0b0000000000000000000000000000000000000000000000001111111111111111L);
         allBitBoard = new BitBoard(0b1111111111111111000000000000000000010000000000001111111111111111L);
         duckBitBoard = new BitBoard(0b0000000000000000000000000000000000010000000000000000000000000000L);
+
         addPieces();
+
+        bitboardMap.put("Rook",rookBitBoard);
+        bitboardMap.put("Knight",knightBitBoard);
+        bitboardMap.put("Bishop",bishopBitBoard);
+        bitboardMap.put("Queen",queenBitBoard);
+        bitboardMap.put("King",kingBitBoard);
+        bitboardMap.put("Pawn",pawnBitBoard);
+        bitboardMap.put("White",whiteBitBoard);
+        bitboardMap.put("Black",blackBitBoard);
+        bitboardMap.put("All",allBitBoard);
+        bitboardMap.put("Duck",duckBitBoard);
+
+
+
     }
 
     public Piece getPiece(int col,int row){
@@ -163,47 +183,145 @@ public class Board extends JPanel {
     public void bitBoardChange(Move move){
         int clearPos = ((move.oldRow*8)+move.oldCol);
         int setPos = ((move.newRow*8)+move.newCol);
+        int capturedClearPos ;
 
-        if (move.piece.name.equals("Duck")){
-            duckBitBoard.clearBit(clearPos);
-            duckBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("King")){
-            kingBitBoard.clearBit(clearPos);
-            kingBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("Queen")){
-            queenBitBoard.clearBit(clearPos);
-            queenBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("Rook")){
-            rookBitBoard.clearBit(clearPos);
-            rookBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("Knight")){
-            knightBitBoard.clearBit(clearPos);
-            knightBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("Bishop")){
-            bishopBitBoard.clearBit(clearPos);
-            bishopBitBoard.toggleBit(setPos);
-        }
-        if (move.piece.name.equals("Pawn")){
-            pawnBitBoard.clearBit(clearPos);
-            pawnBitBoard.toggleBit(setPos);
-        }
+        BitBoard bitToChange = bitboardMap.get(move.piece.name);
+        bitToChange.clearBit(clearPos);
+        bitToChange.toggleBit(setPos);
+        allBitBoard.clearBit(clearPos);
+        allBitBoard.toggleBit(setPos);
         if (move.piece.isWhite){
             whiteBitBoard.clearBit(clearPos);
             whiteBitBoard.toggleBit(setPos);
-        }
-        if (!move.piece.isWhite){
+        }else{
             blackBitBoard.clearBit(clearPos);
             blackBitBoard.toggleBit(setPos);
         }
-        allBitBoard.clearBit(clearPos);
-        allBitBoard.toggleBit(setPos);
-        System.out.println(allBitBoard.toBinaryString());
+        if (move.captured!=null){
+            capturedClearPos = ((move.captured.row*8)+move.captured.col);
+            BitBoard capturedBitBoard = bitboardMap.get(move.captured.name);
+            capturedBitBoard.clearBit(capturedClearPos);
+            allBitBoard.clearBit(capturedClearPos);
+            bitboardMap.put(move.captured.name,capturedBitBoard);
+            if (move.captured.isWhite){
+                whiteBitBoard.clearBit(capturedClearPos);
+            }else{
+                blackBitBoard.clearBit(capturedClearPos);
+            }
+        }
+        bitboardMap.put(move.piece.name,bitToChange);
+        BitBoard printBitBoard = bitboardMap.get(move.piece.name);
+        System.out.println(printBitBoard.toBinaryString());
 
+    }
+
+
+    public ArrayList<Piece> pieceGiveCheck(Move move) {
+        ArrayList<Piece> checkPieces = new ArrayList<>();
+        Piece king = findKing(!move.piece.isWhite);
+        Piece p;
+        //up down
+        for(int r = 0;r<8;r++) {
+            p = getPiece(king.col, r);
+            if(!sameTeam(p,king) && p!=null&&(p.name.equals("Rook")||p.name.equals("Queen"))) {
+                if(!p.movmentCollidWithPiece(king.col, king.row)){
+                    checkPieces.add(p);
+                }
+
+            }
+        }
+        //left right
+        for(int c = 0;c<8;c++) {
+            p = getPiece(c, king.row);
+            if(!sameTeam(p,king) && p!=null&&(p.name.equals("Rook")||p.name.equals("Queen"))) {
+                if(!p.movmentCollidWithPiece(king.col, king.row)){
+                    checkPieces.add(p);
+                }
+            }
+        }
+        //up left down left
+        for(int c =0,r=0;c<8&&r<8;c++,r++) {
+            p = getPiece(c, r);
+            if(!sameTeam(p,king) && p!=null&&(p.name.equals("Bishop")||p.name.equals("Queen"))) {
+                if(!p.movmentCollidWithPiece(king.col, king.row)){
+                    checkPieces.add(p);
+                }
+            }
+        }
+        //up right up left
+        for(int c = 7,r=0;c>=0&&r<8;c--,r++) {
+            p = getPiece(c, r);
+            if(!sameTeam(p,king) && p!=null&&(p.name.equals("Bishop")||p.name.equals("Queen"))) {
+                if(!p.movmentCollidWithPiece(king.col, king.row)){
+                    checkPieces.add(p);
+                }
+            }
+        }
+        //Pawn
+        if(move.piece.name.equals("Pawn")) {
+            int colorVar = king.isWhite ? -1: 1;
+            p = getPiece(king.col + 1,king.row + colorVar);
+            if(!sameTeam(p,king) && p!=null) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col - 1,king.row + colorVar);
+            if(!sameTeam(p,king) && p!=null) {
+                checkPieces.add(p);
+            }
+        }
+        //knight
+        if(move.piece.name.equals("Knight")) {
+            p = getPiece(king.col - 1,king.row - 2);
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col + 1,king.row - 2);//getPiece(kingCol + 1,kingRow - 2)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col + 2,king.row - 1);//getPiece(kingCol + 2,kingRow - 1)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col + 2,king.row +1);//getPiece(kingCol + 2,kingRow + 1)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col + 1,king.row + 2);//getPiece(kingCol + 1,kingRow + 2)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col - 1,king.row + 2);//getPiece(kingCol - 1,kingRow + 2)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col - 2,king.row + 1);//getPiece(kingCol - 2,kingRow + 1)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+            p = getPiece(king.col - 2,king.row - 1);//getPiece(kingCol - 2,kingRow - 1)
+            if(p!=null && !sameTeam(p,king)) {
+                checkPieces.add(p);
+            }
+        }
+        return checkPieces;
+    }
+
+    public boolean isMate(Move move){
+        Piece king = findKing(!move.piece.isWhite);
+        ArrayList<Piece> piecesGiveChack = pieceGiveCheck(move);
+
+        for (Piece attackPiece:piecesGiveChack){
+            if(attackPiece.name.equals("Queen")){
+
+            }
+            for (Piece dp:piecesList){
+                if (dp.isWhite== king.isWhite){
+
+                }
+            }
+        }
+        return true;
     }
 
 

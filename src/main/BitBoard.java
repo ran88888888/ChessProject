@@ -58,6 +58,7 @@ public class BitBoard {
         return temp & bitboard;
     }
 
+
     public void applyMask(long mask)
     {
         bitboard = bitboard & mask;
