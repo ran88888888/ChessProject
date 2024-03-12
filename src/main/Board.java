@@ -5,20 +5,21 @@ import artificialPlayer.Evaluations;
 import pieces.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.*;
 
 
 public class Board extends JPanel {
     public int tilesize = 85;
-    int cols=8;
-    int rows = 8;
+    public static int cols=8;
+    public static int rows = 8;
+    Player whitePlayer, blackPlayer;
     ArrayList<Piece> piecesList= new ArrayList<>();
     boolean firstMove = true;
     public Piece selectedPiece;
     Input input = new Input(this);
     CheckScanner checkScanner = new CheckScanner(this);
+    HashMap<String, Method> moveState = new HashMap<>();
     public int enPassantTile = -1;
     public int whiteturn = 1;
     protected int typeOfpro;
@@ -35,6 +36,8 @@ public class Board extends JPanel {
     public BitBoard allBitBoard ;
     public BitBoard duckBitBoard ;
     public static Map<String, BitBoard> bitboardMap = new HashMap<>();
+    public Map<Integer,Piece> pieceMap = new HashMap<>();
+
 
 
 
@@ -43,6 +46,8 @@ public class Board extends JPanel {
 
     public Board()
     {
+        whitePlayer = new Player();
+        blackPlayer = new Player();
         new Evaluations(this);
         this.setPreferredSize(new Dimension(cols* tilesize,rows* tilesize));
         this.typeOfpro = 4;
@@ -74,9 +79,16 @@ public class Board extends JPanel {
 
 
 
+
     }
 
     public Piece getPiece(int col,int row){
+
+//        Piece piece = player1.getPiece(col,row);
+//        if ( piece == null )
+//            piece = player2.getPiece(col,row);
+
+
         for(Piece p :piecesList){
             if(p.col==col && p.row==row){
                 return p;
@@ -86,6 +98,7 @@ public class Board extends JPanel {
     }
 
     public void makeMove(Move move){
+        ArrayList<Move> allValid;
         if (!move.piece.name.equals("Duck")){
             duck.youCanPlayWithDuck = true;
         }
@@ -93,6 +106,13 @@ public class Board extends JPanel {
             duck.youCanPlayWithDuck = false;
             whiteturn = whiteturn *-1;
             duck.isWhite = whiteturn == 1 ? true: false;
+            if (!duck.isWhite){
+                allValid = allValidMoves(blackPlayer);
+                System.out.println(allValid);
+                if (allValid.size()==0){
+                    System.out.println("end");
+                }
+            }
         }
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
@@ -110,6 +130,8 @@ public class Board extends JPanel {
             capture(move.captured);
         }
         bitBoardChange(move);
+        setPieceMap(move);
+
 
 
 
@@ -162,7 +184,9 @@ public class Board extends JPanel {
         capture(move.captured);
 
     }
+    public void unMakeMove(Move move){
 
+    }
     private void promotionPawn(Move move) {
        switch (this.typeOfpro){
            case 4:
@@ -210,8 +234,30 @@ public class Board extends JPanel {
             }
         }
         bitboardMap.put(move.piece.name,bitToChange);
-        BitBoard printBitBoard = bitboardMap.get(move.piece.name);
-        System.out.println(printBitBoard.toBinaryString());
+        System.out.println(allBitBoard.toBinaryString());
+
+    }
+    public void setPieceMap(Move move){
+        int key = ((move.oldRow*8)+move.oldCol);
+        int whereToGo = ((move.newRow*8)+move.newCol);
+        Piece p;
+        ArrayList<Move> allValid;
+        if(!move.piece.name.equals("Duck")){
+            if (move.piece.isWhite){
+                p = whitePlayer.pieces.get(key);
+                whitePlayer.pieces.remove(key);
+                whitePlayer.pieces.put(whereToGo,p);
+                //allValid = allValidMoves(blackPlayer);
+            }
+            else {
+                p = blackPlayer.pieces.get(key);
+                blackPlayer.pieces.remove(key);
+                blackPlayer.pieces.put(whereToGo,p);
+                //allValid = allValidMoves(whitePlayer);
+            }
+
+        }
+
 
     }
 
@@ -324,7 +370,53 @@ public class Board extends JPanel {
         return true;
     }
 
+    public ArrayList<Move> allValidMoves(Player player) {
+        ArrayList<Move> movelist = new ArrayList<>();
+        ArrayList<Integer> subMoves ;
+        int currentCol;
+        int currentRow;
+        Piece cup;
 
+        for (Piece set:player.pieces.values()){
+            subMoves = set.getPossibleMoves(set.col,set.row);
+            for (int index:subMoves){
+                currentCol = index%8;
+                currentRow = index/8;
+                cup = getPiece(currentCol,currentRow);
+                Move currentMove =new Move(this,set,currentCol,currentRow);
+                currentMove.piece = set;
+                currentMove.oldCol = set.col;
+                currentMove.oldRow = set.row;
+                currentMove.newCol = currentCol;
+                currentMove.newRow = currentRow;
+                currentMove.captured = cup;
+                if (isValidPossibleMove(currentMove)){
+                    movelist.add(currentMove);
+                }
+            }
+            //System.out.println(subMoves);
+        }
+          return movelist;
+    }
+
+    public boolean isValidPossibleMove(Move move){
+        if (move.captured == duck){
+            return false;
+        }
+        if(!move.piece.isValidMovement(move.newCol, move.newRow)){
+            return false;
+        }
+        if(sameTeam(move.piece,move.captured)){
+            return false;
+        }
+        if(move.piece.movmentCollidWithPiece(move.newCol, move.newRow)){
+            return false;
+        }
+        if (checkScanner.isKingChecked(move)){
+            return false;
+        }
+        return true;
+    }
     public void capture(Piece piece){
         piecesList.remove(piece);
     }
@@ -408,26 +500,47 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,5,1,false));
         piecesList.add(new Pawn(this,6,1,false));
         piecesList.add(new Pawn(this,7,1,false));
-        //white pieces
-        piecesList.add(new Rook(this,0,7,true));
-        piecesList.add(new Knight(this,1,7,true));
-        piecesList.add(new Bishop(this,2,7,true));
-        piecesList.add(new Queen(this,3,7,true));
-        piecesList.add(new King(this,4,7,true));
-        piecesList.add(new Bishop(this,5,7,true));
-        piecesList.add(new Knight(this,6,7,true));
-        piecesList.add(new Rook(this,7,7,true));
         //white pawns
-        piecesList.add(new Pawn(this,0,6,true));
-        piecesList.add(new Pawn(this,1,6,true));
-        piecesList.add(new Pawn(this,2,6,true));
-        piecesList.add(new Pawn(this,3,6,true));
-        piecesList.add(new Pawn(this,4,6,true));
-        piecesList.add(new Pawn(this,5,6,true));
-        piecesList.add(new Pawn(this,6,6,true));
         piecesList.add(new Pawn(this,7,6,true));
+        piecesList.add(new Pawn(this,6,6,true));
+        piecesList.add(new Pawn(this,5,6,true));
+        piecesList.add(new Pawn(this,4,6,true));
+        piecesList.add(new Pawn(this,3,6,true));
+        piecesList.add(new Pawn(this,2,6,true));
+        piecesList.add(new Pawn(this,1,6,true));
+        piecesList.add(new Pawn(this,0,6,true));
+        //white pieces
+        piecesList.add(new Rook(this,7,7,true));
+        piecesList.add(new Knight(this,6,7,true));
+        piecesList.add(new Bishop(this,5,7,true));
+        piecesList.add(new King(this,4,7,true));
+        piecesList.add(new Queen(this,3,7,true));
+        piecesList.add(new Bishop(this,2,7,true));
+        piecesList.add(new Knight(this,1,7,true));
+        piecesList.add(new Rook(this,0,7,true));
+        //demo mate
+//        Piece k = new King(this,1,0,false);
+//        k.isFirstMove = false;
+//        piecesList.add(k);
+//        piecesList.add(new King(this,0,7,true));
+//        piecesList.add(new Queen(this,1,7,true));
+//        piecesList.add(new Rook(this,2,6,true));
+//        blackPlayer.pieces.put(1,piecesList.get(0));
+//        whitePlayer.pieces.put(56,piecesList.get(1));
+//        whitePlayer.pieces.put(57,piecesList.get(2));
+//        whitePlayer.pieces.put(50,piecesList.get(3));
+
+
         //duck
         piecesList.add(duck);
+        //hashMap
+        for(int i = 0;i<16;i++){
+            blackPlayer.pieces.put(i, piecesList.get(i));
+        }
+        for (int j =48 ;j<64;j++){
+            whitePlayer.pieces.put(j,piecesList.get(j-32));
+
+        }
 
     }
 

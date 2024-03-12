@@ -5,7 +5,8 @@ import pieces.Piece;
 public class CheckScanner {
     private static final int BOARD_SIZE = 8;
     private Board board;
-
+    int oldCol;
+    int oldRow;
     public CheckScanner(Board board) {
         this.board = board;
     }
@@ -14,10 +15,13 @@ public class CheckScanner {
         Piece king = board.findKing(move.piece.isWhite);
         assert king != null;
 
+        oldCol = move.oldCol;
+        oldRow = move.oldRow;
+
         int kingCol = king.col;
         int kingRow = king.row;
 
-        if (board.selectedPiece != null && board.selectedPiece.name.equals("King")) {
+        if ((board.selectedPiece != null && board.selectedPiece.name.equals("King"))||move.piece.name.equals("King")) {
             kingCol = move.newCol;
             kingRow = move.newRow;
         }
@@ -49,7 +53,9 @@ public class CheckScanner {
                 if (!board.sameTeam(piece,king) && (piece.name.equals("Rook")|| piece.name.equals("Queen"))){
                     return true;
                 }
-                break;
+                if (!(piece.col == oldCol && piece.row == oldRow)){
+                    break;
+                }
             }
         }
         return false;

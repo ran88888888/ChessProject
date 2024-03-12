@@ -3,6 +3,7 @@ package pieces;
 import main.Board;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Bishop extends Piece{
 
@@ -59,4 +60,46 @@ public class Bishop extends Piece{
 
         return false;
     }
+    public ArrayList<Integer> getPossibleMoves(int currentCol, int currentRow) {
+        ArrayList<Integer> possibleMoves = new ArrayList<>();
+
+// Calculate possible moves in the top-left direction
+        int col = currentCol - 1;
+        int row = currentRow - 1;
+        while (col >= 0 && row >= 0) {
+            possibleMoves.add(row * 8 + col + 1); // Add tile number
+            col--;
+            row--;
+        }
+
+        // Calculate possible moves in the top-right direction
+        col = currentCol + 1;
+        row = currentRow - 1;
+        while (col < 8 && row >= 0) { // Assuming a standard 8x8 chessboard
+            possibleMoves.add(row * 8 + col + 1); // Add tile number
+            col++;
+            row--;
+        }
+
+        // Calculate possible moves in the bottom-left direction
+        col = currentCol - 1;
+        row = currentRow + 1;
+        while (col >= 0 && row < 8) { // Assuming a standard 8x8 chessboard
+            possibleMoves.add(row * 8 + col + 1); // Add tile number
+            col--;
+            row++;
+        }
+
+        // Calculate possible moves in the bottom-right direction
+        col = currentCol + 1;
+        row = currentRow + 1;
+        while (col < 8 && row < 8) { // Assuming a standard 8x8 chessboard
+            possibleMoves.add(row * 8 + col + 1); // Add tile number
+            col++;
+            row++;
+        }
+
+        return possibleMoves;
+    }
+
 }

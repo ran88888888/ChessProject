@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Piece {
     public int col, row; // Corrected variable names
@@ -38,7 +39,9 @@ public class Piece {
     public boolean movmentCollidWithPiece(int col,int row){
         return false;
     }
-
+    public ArrayList<Integer> getPossibleMoves(int currentCol, int currentRow) {
+        return null;
+    }
 
     public void paint(Graphics2D g2d){
         g2d.drawImage(sprite,xPos,yPos,null);

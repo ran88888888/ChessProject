@@ -3,6 +3,7 @@ package pieces;
 import main.Board;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Rook extends Piece{
 
@@ -56,5 +57,15 @@ public class Rook extends Piece{
             }
         }
         return false;
+    }
+    public ArrayList<Integer> getPossibleMoves(int currentCol, int currentRow) {
+        ArrayList<Integer> possibleMoves = new ArrayList<>();
+        for(int c = 0;c<8;c++){
+            possibleMoves.add((currentRow*8)+c);
+        }
+        for (int r = 0;r<8;r++){
+            possibleMoves.add(currentCol+(r*8));
+        }
+        return possibleMoves;
     }
 }
