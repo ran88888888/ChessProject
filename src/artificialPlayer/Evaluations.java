@@ -7,5 +7,6 @@ public class Evaluations {
     public Evaluations(Board board){
         this.board = board;
     }
+
     
 }

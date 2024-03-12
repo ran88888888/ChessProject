@@ -1,5 +1,8 @@
 package main;
 
+import viewPanels.SidePanel;
+import viewPanels.CupPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,6 +12,7 @@ public class MyJframe implements ActionListener{
     public JFrame frame;
     private Board board;
     private SidePanel sidePanel;
+    private CupPanel cupPanel;
     JButton rookButton = new JButton("Make a Rook");
     JButton bishopButton = new JButton("Make a bishop");
     JButton knightButton = new JButton("Make a knight");
@@ -20,10 +24,13 @@ public class MyJframe implements ActionListener{
     JLabel whatYouPromoteTo = new JLabel("YOU WILL PROMOTE TO A QUEEN");
 
 
+
+
     public MyJframe() {
         this.frame = new JFrame();
         this.board = new Board();
         this.sidePanel = new SidePanel();
+        this.cupPanel = new CupPanel();
         init();
     }
 
@@ -56,6 +63,9 @@ public class MyJframe implements ActionListener{
         whatYouPromoteTo.setFont(new Font("Serif", Font.BOLD, 9));
         sidePanel.add(whatYouPromoteTo);
 
+
+
+        frame.add(cupPanel);
         frame.add(board);
         frame.add(sidePanel);
         frame.setVisible(true);

@@ -1,4 +1,6 @@
-package main;
+package viewPanels;
+
+import main.Board;
 
 import javax.swing.*;
 import javax.swing.border.Border;

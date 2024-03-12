@@ -12,7 +12,7 @@ import java.util.*;
 public class Board extends JPanel {
     public int tilesize = 85;
     public static int cols=8;
-    public static int rows = 8;
+    public static int rows =8;
     Player whitePlayer, blackPlayer;
     ArrayList<Piece> piecesList= new ArrayList<>();
     boolean firstMove = true;
@@ -37,6 +37,9 @@ public class Board extends JPanel {
     public BitBoard duckBitBoard ;
     public static Map<String, BitBoard> bitboardMap = new HashMap<>();
     public Map<Integer,Piece> pieceMap = new HashMap<>();
+    int whiteCup = 0;
+    int blackCup = 0;
+    int custleMove = 0;
 
 
 
@@ -103,6 +106,7 @@ public class Board extends JPanel {
             duck.youCanPlayWithDuck = true;
         }
         if (move.piece.name.equals("Duck")){
+
             duck.youCanPlayWithDuck = false;
             whiteturn = whiteturn *-1;
             duck.isWhite = whiteturn == 1 ? true: false;
@@ -125,7 +129,7 @@ public class Board extends JPanel {
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * tilesize;
             move.piece.yPos = move.newRow * tilesize;
-
+            custleMove = 0;
             move.piece.isFirstMove = false;
             capture(move.captured);
         }
@@ -138,14 +142,17 @@ public class Board extends JPanel {
     }
     private void moveKing(Move move) {
         if(Math.abs(move.newCol-move.piece.col)==2) {
+            custleMove = 0;
             Piece rook;
             if(move.piece.col< move.newCol) {
                 rook = this.getPiece(7, move.piece.row);
                 rook.col =5;
+                custleMove = 1;
             }
             else {
                 rook = this.getPiece(0, move.piece.row);
                 rook.col = 3;
+                custleMove = 1;
             }
             rook.xPos = rook.col* tilesize;
         }
@@ -243,19 +250,33 @@ public class Board extends JPanel {
         Piece p;
         ArrayList<Move> allValid;
         if(!move.piece.name.equals("Duck")){
-            if (move.piece.isWhite){
-                p = whitePlayer.pieces.get(key);
-                whitePlayer.pieces.remove(key);
-                whitePlayer.pieces.put(whereToGo,p);
-                //allValid = allValidMoves(blackPlayer);
-            }
-            else {
-                p = blackPlayer.pieces.get(key);
-                blackPlayer.pieces.remove(key);
-                blackPlayer.pieces.put(whereToGo,p);
-                //allValid = allValidMoves(whitePlayer);
-            }
 
+                if (move.piece.isWhite){
+                    if (custleMove==1){
+                        int rookKey = whereToGo==6?7:0;
+                        int rookWhereToGo = rookKey==7?5:3;
+                        Piece rook = whitePlayer.pieces.get(rookKey);
+                        whitePlayer.pieces.remove(rookKey);
+                        whitePlayer.pieces.put(rookWhereToGo,rook);
+                    }
+                    p = whitePlayer.pieces.get(key);
+                    whitePlayer.pieces.remove(key);
+                    whitePlayer.pieces.put(whereToGo,p);
+                    //allValid = allValidMoves(blackPlayer);
+                }
+                else {
+                    if (custleMove==1){
+                        int rookKey = whereToGo==6?7:0;
+                        int rookWhereToGo = rookKey==7?5:3;
+                        Piece rook = blackPlayer.pieces.get(rookKey);
+                        blackPlayer.pieces.remove(rookKey);
+                        blackPlayer.pieces.put(rookWhereToGo,rook);
+                    }
+                    p = blackPlayer.pieces.get(key);
+                    blackPlayer.pieces.remove(key);
+                    blackPlayer.pieces.put(whereToGo,p);
+                    //allValid = allValidMoves(whitePlayer);
+                }
         }
 
 
@@ -353,22 +374,6 @@ public class Board extends JPanel {
         return checkPieces;
     }
 
-    public boolean isMate(Move move){
-        Piece king = findKing(!move.piece.isWhite);
-        ArrayList<Piece> piecesGiveChack = pieceGiveCheck(move);
-
-        for (Piece attackPiece:piecesGiveChack){
-            if(attackPiece.name.equals("Queen")){
-
-            }
-            for (Piece dp:piecesList){
-                if (dp.isWhite== king.isWhite){
-
-                }
-            }
-        }
-        return true;
-    }
 
     public ArrayList<Move> allValidMoves(Player player) {
         ArrayList<Move> movelist = new ArrayList<>();
@@ -418,7 +423,18 @@ public class Board extends JPanel {
         return true;
     }
     public void capture(Piece piece){
-        piecesList.remove(piece);
+        if (piece!=null){
+            piecesList.remove(piece);
+            int key = ((piece.row*8)+piece.col);
+            if (piece.isWhite){
+                whitePlayer.pieces.remove(key);
+                blackCup = blackCup+piece.value;
+            }
+            else{
+                blackPlayer.pieces.remove(key);
+                whiteCup = whiteCup+piece.value;
+            }
+        }
     }
     public boolean isValidMove(Move move){
         if(duck.youCanPlayWithDuck && !move.piece.name.equals("Duck")){
@@ -518,6 +534,7 @@ public class Board extends JPanel {
         piecesList.add(new Bishop(this,2,7,true));
         piecesList.add(new Knight(this,1,7,true));
         piecesList.add(new Rook(this,0,7,true));
+
         //demo mate
 //        Piece k = new King(this,1,0,false);
 //        k.isFirstMove = false;
