@@ -8,8 +8,9 @@ public class Move {
     int newCol;
     int newRow;
 
+    public int score = 0;
     public Piece piece;
-    Piece captured;
+    public Piece captured;
 
     public Move(Board board,Piece piece,int newCol,int newRow){
         this.oldCol = piece.col;

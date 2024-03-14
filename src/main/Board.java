@@ -13,7 +13,7 @@ public class Board extends JPanel {
     public int tilesize = 85;
     public static int cols=8;
     public static int rows =8;
-    Player whitePlayer, blackPlayer;
+    public Player whitePlayer, blackPlayer;
     ArrayList<Piece> piecesList= new ArrayList<>();
     boolean firstMove = true;
     public Piece selectedPiece;
@@ -37,11 +37,11 @@ public class Board extends JPanel {
     public BitBoard duckBitBoard ;
     public static Map<String, BitBoard> bitboardMap = new HashMap<>();
     public Map<Integer,Piece> pieceMap = new HashMap<>();
-    int whiteCup = 0;
-    int blackCup = 0;
+    int whiteCap = 0;
+    int blackCap = 0;
     int custleMove = 0;
-
-
+    Move lastMove;
+    Piece tempPiece = duck;
 
 
 
@@ -99,24 +99,45 @@ public class Board extends JPanel {
         }
         return null;
     }
+    public boolean checkingIfDuckInterapt(Move DuckMove,Move bestWhiteMove) {
+        tempPiece.col = duck.col;
+        tempPiece.row = duck.row;
+        tempPiece.xPos = duck.xPos;
+        tempPiece.yPos = duck.yPos;
+        DuckMove.piece.col = DuckMove.newCol;
+        DuckMove.piece.row = DuckMove.newRow;
+        DuckMove.piece.xPos = DuckMove.newCol * tilesize;
+        DuckMove.piece.yPos = DuckMove.newRow * tilesize;
 
-    public void makeMove(Move move){
-        ArrayList<Move> allValid;
-        if (!move.piece.name.equals("Duck")){
-            duck.youCanPlayWithDuck = true;
+        if (!isValidPossibleMove(bestWhiteMove)){
+            duck.col = tempPiece.col;
+            duck.row = tempPiece.row;
+            duck.xPos = tempPiece.xPos;
+            duck.yPos = tempPiece.yPos;
+            return true;
         }
-        if (move.piece.name.equals("Duck")){
+        duck.col = tempPiece.col;
+        duck.row = tempPiece.row;
+        duck.xPos = tempPiece.xPos;
+        duck.yPos = tempPiece.yPos;
+        return false;
+    }
+    public void makeAduckMove(Move move){
+        duck.youCanPlayWithDuck = false;
+        whiteturn = whiteturn *-1;
+        duck.isWhite = whiteturn == 1 ? true: false;
+        move.piece.col = move.newCol;
+        move.piece.row = move.newRow;
+        move.piece.xPos = move.newCol * tilesize;
+        move.piece.yPos = move.newRow * tilesize;
+        custleMove = 0;
 
-            duck.youCanPlayWithDuck = false;
-            whiteturn = whiteturn *-1;
-            duck.isWhite = whiteturn == 1 ? true: false;
-            if (!duck.isWhite){
-                allValid = allValidMoves(blackPlayer);
-                System.out.println(allValid);
-                if (allValid.size()==0){
-                    System.out.println("end");
-                }
-            }
+        bitBoardChange(move);
+    }
+    public void artificialMove(Move move){
+        ArrayList<Move> allValid;
+        if (!move.piece.name.equals("Duck")) {
+            duck.youCanPlayWithDuck = true;
         }
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
@@ -124,7 +145,7 @@ public class Board extends JPanel {
         if(move.piece.name.equals("King")) {
             moveKing(move);
         }
-        else{
+        else if(!move.piece.name.equals("Duck")){
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * tilesize;
@@ -135,6 +156,56 @@ public class Board extends JPanel {
         }
         bitBoardChange(move);
         setPieceMap(move);
+        if (!move.piece.name.equals("Duck")){
+            if (!move.piece.isWhite){
+                allValid = allValidMoves(whitePlayer);
+                Move bestDuckMove = Evaluations.bestDuckMoveEval(allValid);
+                int colDuck = bestDuckMove.newCol;
+                int rowDuck = bestDuckMove.newRow;
+                Move duckMove = new Move(this,duck,colDuck,rowDuck);
+                makeAduckMove(duckMove);
+            }
+        }
+    }
+    public void makeMove(Move move){
+        ArrayList<Move> allValid;
+        if (!move.piece.name.equals("Duck")){
+            duck.youCanPlayWithDuck = true;
+        }
+        if (move.piece.name.equals("Duck")){
+            makeAduckMove(move);
+            if (!duck.isWhite){
+                allValid = allValidMoves(blackPlayer);
+                System.out.println(allValid);
+                if (allValid.size()==0){
+                    System.out.println("game ended");
+                }
+                Move bestMove = Evaluations.bestMoveEval(allValid);
+                if (bestMove!=null){
+                    artificialMove(bestMove);
+                }
+
+            }
+        }
+        if(move.piece.name.equals("Pawn")){
+            movePawn(move);
+        }
+        if(move.piece.name.equals("King")) {
+            moveKing(move);
+        }
+        else if(!move.piece.name.equals("Duck")){
+            move.piece.col = move.newCol;
+            move.piece.row = move.newRow;
+            move.piece.xPos = move.newCol * tilesize;
+            move.piece.yPos = move.newRow * tilesize;
+            custleMove = 0;
+            move.piece.isFirstMove = false;
+            capture(move.captured);
+        }
+        bitBoardChange(move);
+        setPieceMap(move);
+
+
 
 
 
@@ -253,8 +324,8 @@ public class Board extends JPanel {
 
                 if (move.piece.isWhite){
                     if (custleMove==1){
-                        int rookKey = whereToGo==6?7:0;
-                        int rookWhereToGo = rookKey==7?5:3;
+                        int rookKey = whereToGo==62?63:56;
+                        int rookWhereToGo = rookKey==63?61:59;
                         Piece rook = whitePlayer.pieces.get(rookKey);
                         whitePlayer.pieces.remove(rookKey);
                         whitePlayer.pieces.put(rookWhereToGo,rook);
@@ -405,6 +476,9 @@ public class Board extends JPanel {
     }
 
     public boolean isValidPossibleMove(Move move){
+        if (gameOver == 1){
+            return false;
+        }
         if (move.captured == duck){
             return false;
         }
@@ -424,19 +498,32 @@ public class Board extends JPanel {
     }
     public void capture(Piece piece){
         if (piece!=null){
+            if (piece.name.equals("King")){
+                if (!piece.isWhite){
+                    System.out.println("WHITE WON BY MATE");
+                    gameOver = 1;
+                }
+                else{
+                    System.out.println("BLACK WON BY MATE");
+                    gameOver = 1;
+                }
+            }
             piecesList.remove(piece);
             int key = ((piece.row*8)+piece.col);
             if (piece.isWhite){
                 whitePlayer.pieces.remove(key);
-                blackCup = blackCup+piece.value;
+                blackCap = blackCap +piece.value;
             }
             else{
                 blackPlayer.pieces.remove(key);
-                whiteCup = whiteCup+piece.value;
+                whiteCap = whiteCap +piece.value;
             }
         }
     }
     public boolean isValidMove(Move move){
+        if (gameOver == 1){
+            return false;
+        }
         if(duck.youCanPlayWithDuck && !move.piece.name.equals("Duck")){
             return false;
         }
