@@ -118,5 +118,179 @@ public class CheckScanner {
     public boolean checkPawn(Piece p, Piece k, int col, int row) {
         return p != null && !board.sameTeam(p, k) && p.name.equals("Pawn") && !(p.col == col && p.row == row);
     }
+    public Piece isAPieceCanGetHit(Piece piece){
+        Piece attackingPiece;
+        int currentRow = piece.row;
+        int currentCol = piece.col;
+        //check rook up
+        // rook move start
+        for (int i = 0;i<8;i++){
+             attackingPiece = board.getPiece(piece.col,i);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Rook")||attackingPiece.name.equals("Queen")) ){
+                return attackingPiece;
+            }
+
+        }
+        //check rook side
+        for (int i = 0;i<8;i++){
+             attackingPiece = board.getPiece(i,piece.row);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Rook")||attackingPiece.name.equals("Queen")) ){
+                return attackingPiece;
+            }
+        }
+        //rook move end
+        //bishop move start
+        // Calculate possible moves in the top-left direction
+        int col = piece.col - 1;
+        int row = piece.row - 1;
+        while (col >= 0 && row >= 0) {
+            attackingPiece = board.getPiece(col,row);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
+                return attackingPiece;
+            }
+            col--;
+            row--;
+        }
+
+        // Calculate possible moves in the top-right direction
+        col = piece.col + 1;
+        row = piece.row - 1;
+        while (col < 8 && row >= 0) { // Assuming a standard 8x8 chessboard
+            attackingPiece = board.getPiece(col,row);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
+                return attackingPiece;
+            }
+            col++;
+            row--;
+        }
+
+        // Calculate possible moves in the bottom-left direction
+        col = piece.col - 1;
+        row = piece.row + 1;
+        while (col >= 0 && row < 8) { // Assuming a standard 8x8 chessboard
+            attackingPiece = board.getPiece(col,row);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
+                return attackingPiece;
+            }
+            col--;
+            row++;
+        }
+
+        // Calculate possible moves in the bottom-right direction
+        col = piece.col + 1;
+        row = piece.row + 1;
+        while (col < 8 && row < 8) { // Assuming a standard 8x8 chessboard
+            attackingPiece = board.getPiece(col,row);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
+                return attackingPiece;
+            }
+            col++;
+            row++;
+        }
+        //bishop move end
+        //pawn movment start
+        int colorIndex = piece.isWhite ? -1 : 1;
+
+        // Capture left
+        if (currentCol - 1 >= 0 && board.getPiece(currentCol - 1, currentRow - colorIndex) != null) {
+            attackingPiece = board.getPiece(currentCol-1,currentRow-colorIndex);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
+                return attackingPiece;
+            }
+        }
+
+        // Capture right
+        if (currentCol + 1 < 8 && board.getPiece(currentCol + 1, currentRow - colorIndex) != null) {
+            attackingPiece = board.getPiece(currentCol+1,currentRow-colorIndex);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
+                return attackingPiece;
+            }
+        }
+
+        // En passant left
+        if (board.getTileNum(currentCol - 1, currentRow) == board.enPassantTile && board.getPiece(currentCol - 1, currentRow + colorIndex) != null) {
+            attackingPiece = board.getPiece(currentCol-1,currentRow-colorIndex);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
+                return attackingPiece;
+            }
+        }
+
+        // En passant right
+        if (board.getTileNum(currentCol + 1, currentRow) == board.enPassantTile && board.getPiece(currentCol + 1, currentRow + colorIndex) != null) {
+            attackingPiece = board.getPiece(currentCol+1,currentRow-colorIndex);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
+                return attackingPiece;
+            }
+        }
+        //pawn move end
+        //knight move start
+        int[][] moves = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
+        if((currentRow+2)<8 && (currentCol+1)<8){
+            attackingPiece = board.getPiece(currentCol+1,currentRow+2);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow+2)<8 && (currentCol-1)>-1){
+            attackingPiece = board.getPiece(currentCol-1,currentRow+2);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow+1)<8 && (currentCol-2)>-1){
+            attackingPiece = board.getPiece(currentCol-2,currentRow+1);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow+1)<8 && (currentCol+2)<8){
+            attackingPiece = board.getPiece(currentCol+2,currentRow+1);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow-2)>-1 && (currentCol+1)<8){
+            attackingPiece = board.getPiece(currentCol+1,currentRow-2);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow-2)>-1 && (currentCol-1)>-1){
+            attackingPiece = board.getPiece(currentCol-1,currentRow-2);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow-1)>-1 && (currentCol+2)<8){
+            attackingPiece = board.getPiece(currentCol+2,currentRow-1);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        if((currentRow-1)>-1 && (currentCol-2)>-1){
+            attackingPiece = board.getPiece(currentCol-2,currentRow-1);
+            if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
+                return attackingPiece;
+            }
+        }
+        //knight move end
+        // king move start
+        // Calculate possible moves in horizontal and vertical directions
+        for (int dRow = -1; dRow <= 1; dRow++) {
+            for (int dCol = -1; dCol <= 1; dCol++) {
+                int newRow = currentRow + dRow;
+                int newCol = currentCol + dCol;
+                if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) { // Assuming a standard 8x8 chessboard
+                    attackingPiece = board.getPiece(newCol,newRow);
+                    if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("King")) ) {
+                        return attackingPiece;
+                    }
+                }
+            }
+        }
+
+        return null;
+
+    }
 
 }

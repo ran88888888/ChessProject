@@ -41,7 +41,7 @@ public class Board extends JPanel {
     int blackCap = 0;
     int custleMove = 0;
     Move lastMove;
-    Piece tempPiece = duck;
+    Piece tempDuckPiece = new Duck(this,0,0);
 
 
 
@@ -99,27 +99,29 @@ public class Board extends JPanel {
         }
         return null;
     }
+
+
     public boolean checkingIfDuckInterapt(Move DuckMove,Move bestWhiteMove) {
-        tempPiece.col = duck.col;
-        tempPiece.row = duck.row;
-        tempPiece.xPos = duck.xPos;
-        tempPiece.yPos = duck.yPos;
+        tempDuckPiece.col = duck.col;
+        tempDuckPiece.row = duck.row;
+        tempDuckPiece.xPos = duck.xPos;
+        tempDuckPiece.yPos = duck.yPos;
         DuckMove.piece.col = DuckMove.newCol;
         DuckMove.piece.row = DuckMove.newRow;
         DuckMove.piece.xPos = DuckMove.newCol * tilesize;
         DuckMove.piece.yPos = DuckMove.newRow * tilesize;
 
         if (!isValidPossibleMove(bestWhiteMove)){
-            duck.col = tempPiece.col;
-            duck.row = tempPiece.row;
-            duck.xPos = tempPiece.xPos;
-            duck.yPos = tempPiece.yPos;
+            duck.col = tempDuckPiece.col;
+            duck.row = tempDuckPiece.row;
+            duck.xPos = tempDuckPiece.xPos;
+            duck.yPos = tempDuckPiece.yPos;
             return true;
         }
-        duck.col = tempPiece.col;
-        duck.row = tempPiece.row;
-        duck.xPos = tempPiece.xPos;
-        duck.yPos = tempPiece.yPos;
+        duck.col = tempDuckPiece.col;
+        duck.row = tempDuckPiece.row;
+        duck.xPos = tempDuckPiece.xPos;
+        duck.yPos = tempDuckPiece.yPos;
         return false;
     }
     public void makeAduckMove(Move move){
@@ -134,11 +136,10 @@ public class Board extends JPanel {
 
         bitBoardChange(move);
     }
+
+
     public void artificialMove(Move move){
         ArrayList<Move> allValid;
-        if (!move.piece.name.equals("Duck")) {
-            duck.youCanPlayWithDuck = true;
-        }
         if(move.piece.name.equals("Pawn")){
             movePawn(move);
         }
@@ -146,6 +147,7 @@ public class Board extends JPanel {
             moveKing(move);
         }
         else if(!move.piece.name.equals("Duck")){
+            duck.youCanPlayWithDuck = true;
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * tilesize;
@@ -156,9 +158,14 @@ public class Board extends JPanel {
         }
         bitBoardChange(move);
         setPieceMap(move);
-        if (!move.piece.name.equals("Duck")){
-            if (!move.piece.isWhite){
-                allValid = allValidMoves(whitePlayer);
+
+        if (!move.piece.isWhite){
+            allValid = allValidMoves(whitePlayer);
+            if (allValid.size()==0){
+                System.out.println("black Won");
+                gameEnded(move);
+            }
+            else {
                 Move bestDuckMove = Evaluations.bestDuckMoveEval(allValid);
                 int colDuck = bestDuckMove.newCol;
                 int rowDuck = bestDuckMove.newRow;
@@ -167,6 +174,8 @@ public class Board extends JPanel {
             }
         }
     }
+
+
     public void makeMove(Move move){
         ArrayList<Move> allValid;
         if (!move.piece.name.equals("Duck")){
@@ -179,6 +188,7 @@ public class Board extends JPanel {
                 System.out.println(allValid);
                 if (allValid.size()==0){
                     System.out.println("game ended");
+                    gameEnded(move);
                 }
                 Move bestMove = Evaluations.bestMoveEval(allValid);
                 if (bestMove!=null){
@@ -202,8 +212,7 @@ public class Board extends JPanel {
             move.piece.isFirstMove = false;
             capture(move.captured);
         }
-        bitBoardChange(move);
-        setPieceMap(move);
+
 
 
 
@@ -248,15 +257,18 @@ public class Board extends JPanel {
         } else {
             enPassantTile = -1;
         }
+        move.piece.col = move.newCol;
+        move.piece.row = move.newRow;
+        move.piece.xPos = move.newCol * tilesize;
+        move.piece.yPos = move.newRow * tilesize;
+
+        bitBoardChange(move);
+        setPieceMap(move);
         //premotion
         colorIndex = move.piece.isWhite ? 0:7;
         if (move.newRow==colorIndex){
             promotionPawn(move);
         }
-        move.piece.col = move.newCol;
-        move.piece.row = move.newRow;
-        move.piece.xPos = move.newCol * tilesize;
-        move.piece.yPos = move.newRow * tilesize;
 
         move.piece.isFirstMove = false;
         capture(move.captured);
@@ -266,18 +278,39 @@ public class Board extends JPanel {
 
     }
     private void promotionPawn(Move move) {
-       switch (this.typeOfpro){
+       int key = move.newRow*8+move.newCol;
+        switch (this.typeOfpro){
            case 4:
                piecesList.add(new Queen(this,move.newCol,move.newRow,move.piece.isWhite));
+               if (move.piece.isWhite) {
+                   whitePlayer.pieces.put(key, new Queen(this, move.newCol, move.newRow, move.piece.isWhite));
+               } else {
+                   blackPlayer.pieces.put(key, new Queen(this, move.newCol, move.newRow, move.piece.isWhite));
+               }
                break;
            case 3:
                piecesList.add(new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
+               if (move.piece.isWhite) {
+                   whitePlayer.pieces.put(key, new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
+               } else {
+                   blackPlayer.pieces.put(key, new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
+               }
                break;
            case 2:
                piecesList.add(new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
+               if (move.piece.isWhite) {
+                   whitePlayer.pieces.put(key, new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
+               } else {
+                   blackPlayer.pieces.put(key, new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
+               }
                break;
            case 1:
                piecesList.add(new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
+               if (move.piece.isWhite) {
+                   whitePlayer.pieces.put(key, new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
+               } else {
+                   blackPlayer.pieces.put(key, new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
+               }
                break;
        }
         capture(move.piece);
@@ -479,6 +512,11 @@ public class Board extends JPanel {
         if (gameOver == 1){
             return false;
         }
+        if(getPiece(move.newCol,move.newRow)!=null){
+            if(getPiece(move.newCol,move.newRow).name.equals("Duck")){
+                return false;
+            }
+        }
         if (move.captured == duck){
             return false;
         }
@@ -582,6 +620,24 @@ public class Board extends JPanel {
         }
         return null;
     }
+    public void gameEnded(Move move) {
+
+        String message = "";
+
+
+        // Check for checkmate
+        if (checkScanner.isKingChecked(move)){
+            message = move.piece.isWhite ? "checkMate! Black player wins the game." : "checkMate! White player wins the game.";
+            JOptionPane.showMessageDialog(null, message);
+            System.exit(0);
+        }
+        // Check for stalemate
+        else if (!checkScanner.isKingChecked(move)) {
+            message = "StaleMate! you both noobs :(";
+            JOptionPane.showMessageDialog(null, message);
+            System.exit(0);
+        }
+    }
 
     public void addPieces(){
 
@@ -622,22 +678,22 @@ public class Board extends JPanel {
         piecesList.add(new Knight(this,1,7,true));
         piecesList.add(new Rook(this,0,7,true));
 
-        //demo mate
+//        //demo mate
 //        Piece k = new King(this,1,0,false);
 //        k.isFirstMove = false;
 //        piecesList.add(k);
 //        piecesList.add(new King(this,0,7,true));
-//        piecesList.add(new Queen(this,1,7,true));
-//        piecesList.add(new Rook(this,2,6,true));
+//        piecesList.add(new Queen(this,3,7,false));
+//        piecesList.add(new Pawn(this,7,1,false));
 //        blackPlayer.pieces.put(1,piecesList.get(0));
 //        whitePlayer.pieces.put(56,piecesList.get(1));
-//        whitePlayer.pieces.put(57,piecesList.get(2));
-//        whitePlayer.pieces.put(50,piecesList.get(3));
+//        blackPlayer.pieces.put(60,piecesList.get(2));
+//        blackPlayer.pieces.put(15,piecesList.get(3));
 
 
         //duck
         piecesList.add(duck);
-        //hashMap
+//        //hashMap
         for(int i = 0;i<16;i++){
             blackPlayer.pieces.put(i, piecesList.get(i));
         }
