@@ -5,7 +5,7 @@ import pieces.Piece;
 import java.util.*;
 
 public class Player {
-    Map<Integer, Piece> pieces;
+    public Map<Integer, Piece> pieces;
 
 
     public  Player(){

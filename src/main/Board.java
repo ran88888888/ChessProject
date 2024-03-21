@@ -14,11 +14,11 @@ public class Board extends JPanel {
     public static int cols=8;
     public static int rows =8;
     public Player whitePlayer, blackPlayer;
-    ArrayList<Piece> piecesList= new ArrayList<>();
+    public ArrayList<Piece> piecesList= new ArrayList<>();
     boolean firstMove = true;
     public Piece selectedPiece;
     Input input = new Input(this);
-    CheckScanner checkScanner = new CheckScanner(this);
+    public CheckScanner checkScanner = new CheckScanner(this);
     HashMap<String, Method> moveState = new HashMap<>();
     public int enPassantTile = -1;
     public int whiteturn = 1;
@@ -87,10 +87,6 @@ public class Board extends JPanel {
 
     public Piece getPiece(int col,int row){
 
-//        Piece piece = player1.getPiece(col,row);
-//        if ( piece == null )
-//            piece = player2.getPiece(col,row);
-
 
         for(Piece p :piecesList){
             if(p.col==col && p.row==row){
@@ -99,7 +95,6 @@ public class Board extends JPanel {
         }
         return null;
     }
-
 
     public boolean checkingIfDuckInterapt(Move DuckMove,Move bestWhiteMove) {
         tempDuckPiece.col = duck.col;
@@ -211,6 +206,8 @@ public class Board extends JPanel {
             custleMove = 0;
             move.piece.isFirstMove = false;
             capture(move.captured);
+            bitBoardChange(move);
+            setPieceMap(move);
         }
 
 
@@ -263,7 +260,7 @@ public class Board extends JPanel {
         move.piece.yPos = move.newRow * tilesize;
 
         bitBoardChange(move);
-        setPieceMap(move);
+        //setPieceMap(move);
         //premotion
         colorIndex = move.piece.isWhite ? 0:7;
         if (move.newRow==colorIndex){
@@ -660,23 +657,23 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,6,1,false));
         piecesList.add(new Pawn(this,7,1,false));
         //white pawns
-        piecesList.add(new Pawn(this,7,6,true));
-        piecesList.add(new Pawn(this,6,6,true));
-        piecesList.add(new Pawn(this,5,6,true));
-        piecesList.add(new Pawn(this,4,6,true));
-        piecesList.add(new Pawn(this,3,6,true));
-        piecesList.add(new Pawn(this,2,6,true));
-        piecesList.add(new Pawn(this,1,6,true));
         piecesList.add(new Pawn(this,0,6,true));
+        piecesList.add(new Pawn(this,1,6,true));
+        piecesList.add(new Pawn(this,2,6,true));
+        piecesList.add(new Pawn(this,3,6,true));
+        piecesList.add(new Pawn(this,4,6,true));
+        piecesList.add(new Pawn(this,5,6,true));
+        piecesList.add(new Pawn(this,6,6,true));
+        piecesList.add(new Pawn(this,7,6,true));
         //white pieces
-        piecesList.add(new Rook(this,7,7,true));
-        piecesList.add(new Knight(this,6,7,true));
-        piecesList.add(new Bishop(this,5,7,true));
-        piecesList.add(new King(this,4,7,true));
-        piecesList.add(new Queen(this,3,7,true));
-        piecesList.add(new Bishop(this,2,7,true));
-        piecesList.add(new Knight(this,1,7,true));
         piecesList.add(new Rook(this,0,7,true));
+        piecesList.add(new Knight(this,1,7,true));
+        piecesList.add(new Bishop(this,2,7,true));
+        piecesList.add(new Queen(this,3,7,true));
+        piecesList.add(new King(this,4,7,true));
+        piecesList.add(new Bishop(this,5,7,true));
+        piecesList.add(new Knight(this,6,7,true));
+        piecesList.add(new Rook(this,7,7,true));
 
 //        //demo mate
 //        Piece k = new King(this,1,0,false);

@@ -2,6 +2,8 @@ package main;
 
 import pieces.Piece;
 
+import java.util.ArrayList;
+
 public class CheckScanner {
     private static final int BOARD_SIZE = 8;
     private Board board;
@@ -118,8 +120,11 @@ public class CheckScanner {
     public boolean checkPawn(Piece p, Piece k, int col, int row) {
         return p != null && !board.sameTeam(p, k) && p.name.equals("Pawn") && !(p.col == col && p.row == row);
     }
-    public Piece isAPieceCanGetHit(Piece piece){
+    public ArrayList<Piece> isAPieceCanGetHit(Piece piece){
+        ArrayList<Piece> piecesAttack = new ArrayList<>();
+
         Piece attackingPiece;
+
         int currentRow = piece.row;
         int currentCol = piece.col;
         //check rook up
@@ -127,15 +132,20 @@ public class CheckScanner {
         for (int i = 0;i<8;i++){
              attackingPiece = board.getPiece(piece.col,i);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Rook")||attackingPiece.name.equals("Queen")) ){
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
-
         }
         //check rook side
         for (int i = 0;i<8;i++){
              attackingPiece = board.getPiece(i,piece.row);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Rook")||attackingPiece.name.equals("Queen")) ){
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         //rook move end
@@ -146,7 +156,10 @@ public class CheckScanner {
         while (col >= 0 && row >= 0) {
             attackingPiece = board.getPiece(col,row);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
             col--;
             row--;
@@ -158,7 +171,10 @@ public class CheckScanner {
         while (col < 8 && row >= 0) { // Assuming a standard 8x8 chessboard
             attackingPiece = board.getPiece(col,row);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
             col++;
             row--;
@@ -170,7 +186,10 @@ public class CheckScanner {
         while (col >= 0 && row < 8) { // Assuming a standard 8x8 chessboard
             attackingPiece = board.getPiece(col,row);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
             col--;
             row++;
@@ -182,20 +201,26 @@ public class CheckScanner {
         while (col < 8 && row < 8) { // Assuming a standard 8x8 chessboard
             attackingPiece = board.getPiece(col,row);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Bishop")||attackingPiece.name.equals("Queen")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
             col++;
             row++;
         }
         //bishop move end
         //pawn movment start
-        int colorIndex = piece.isWhite ? -1 : 1;
+        int colorIndex = piece.isWhite ? 1 : -1;
 
         // Capture left
         if (currentCol - 1 >= 0 && board.getPiece(currentCol - 1, currentRow - colorIndex) != null) {
             attackingPiece = board.getPiece(currentCol-1,currentRow-colorIndex);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
 
@@ -203,7 +228,10 @@ public class CheckScanner {
         if (currentCol + 1 < 8 && board.getPiece(currentCol + 1, currentRow - colorIndex) != null) {
             attackingPiece = board.getPiece(currentCol+1,currentRow-colorIndex);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
 
@@ -211,7 +239,10 @@ public class CheckScanner {
         if (board.getTileNum(currentCol - 1, currentRow) == board.enPassantTile && board.getPiece(currentCol - 1, currentRow + colorIndex) != null) {
             attackingPiece = board.getPiece(currentCol-1,currentRow-colorIndex);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
 
@@ -219,58 +250,85 @@ public class CheckScanner {
         if (board.getTileNum(currentCol + 1, currentRow) == board.enPassantTile && board.getPiece(currentCol + 1, currentRow + colorIndex) != null) {
             attackingPiece = board.getPiece(currentCol+1,currentRow-colorIndex);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Pawn")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         //pawn move end
         //knight move start
-        int[][] moves = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
+        //int[][] moves = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
         if((currentRow+2)<8 && (currentCol+1)<8){
             attackingPiece = board.getPiece(currentCol+1,currentRow+2);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow+2)<8 && (currentCol-1)>-1){
             attackingPiece = board.getPiece(currentCol-1,currentRow+2);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow+1)<8 && (currentCol-2)>-1){
             attackingPiece = board.getPiece(currentCol-2,currentRow+1);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow+1)<8 && (currentCol+2)<8){
             attackingPiece = board.getPiece(currentCol+2,currentRow+1);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow-2)>-1 && (currentCol+1)<8){
             attackingPiece = board.getPiece(currentCol+1,currentRow-2);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow-2)>-1 && (currentCol-1)>-1){
             attackingPiece = board.getPiece(currentCol-1,currentRow-2);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow-1)>-1 && (currentCol+2)<8){
             attackingPiece = board.getPiece(currentCol+2,currentRow-1);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         if((currentRow-1)>-1 && (currentCol-2)>-1){
             attackingPiece = board.getPiece(currentCol-2,currentRow-1);
             if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("Knight")) ) {
-                return attackingPiece;
+                Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                if (board.isValidPossibleMove(move)){
+                    piecesAttack.add(attackingPiece);
+                }
             }
         }
         //knight move end
@@ -283,13 +341,15 @@ public class CheckScanner {
                 if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) { // Assuming a standard 8x8 chessboard
                     attackingPiece = board.getPiece(newCol,newRow);
                     if (attackingPiece!=null && !board.sameTeam(attackingPiece,piece) && (attackingPiece.name.equals("King")) ) {
-                        return attackingPiece;
+                        Move move = new Move(board,attackingPiece,piece.col,piece.row);
+                        if (board.isValidPossibleMove(move)){
+                            piecesAttack.add(attackingPiece);
+                        }
                     }
                 }
             }
         }
-
-        return null;
+        return piecesAttack;
 
     }
 

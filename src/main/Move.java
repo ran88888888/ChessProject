@@ -2,13 +2,29 @@ package main;
 
 import pieces.Piece;
 
+import java.util.Objects;
+
 public class Move implements Comparable<Move>{
-    int oldCol;
-    int oldRow;
-    int newCol;
-    int newRow;
+    public int oldCol;
+    public int oldRow;
+    public int newCol;
+    public int newRow;
 
     public int score = 0;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Move move = (Move) o;
+        return oldCol == move.oldCol && oldRow == move.oldRow && newCol == move.newCol && newRow == move.newRow && score == move.score && Objects.equals(piece, move.piece) && Objects.equals(captured, move.captured);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(oldCol, oldRow, newCol, newRow, score, piece, captured);
+    }
+
     public Piece piece;
     public Piece captured;
 
@@ -30,9 +46,23 @@ public class Move implements Comparable<Move>{
     }
 
     @Override
+    public String toString() {
+        return "Move{" +
+                "oldCol=" + oldCol +
+                ", oldRow=" + oldRow +
+                ", newCol=" + newCol +
+                ", newRow=" + newRow +
+                ", score=" + score +
+                ", piece=" + piece +
+                ", captured=" + captured +
+                '}';
+    }
+
+    @Override
     public int compareTo(Move o) {
         return Integer.compare( o.score,this.score);
     }
+
 
 
 }
