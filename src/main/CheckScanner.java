@@ -352,5 +352,39 @@ public class CheckScanner {
         return piecesAttack;
 
     }
+    public ArrayList<Move> checkMateScanner(ArrayList<Move>moveList,Move enemyMove){
+        ArrayList<Move>posMoves;
+        ArrayList<Move>safeMoves = new ArrayList<>();
+
+
+
+        for (Move move:moveList){
+            move.piece.col = move.newCol;
+            move.piece.row = move.newRow;
+            move.piece.xPos = move.newCol * board.tilesize;
+            move.piece.yPos = move.newRow * board.tilesize;
+            board.setPieceMap(move);
+
+            if (move.piece.isWhite){
+                posMoves = board.allValidMoves(board.whitePlayer);
+            }else {
+                posMoves = board.allValidMoves(board.blackPlayer);
+            }
+            if (posMoves.size()!=0){
+                safeMoves.add(move);
+            }
+            Move tempMove = new Move(board,move.piece, move.oldCol,move.oldRow);
+            board.setPieceMap(tempMove);
+            move.piece.col = move.oldCol;
+            move.piece.row = move.oldRow;
+            move.piece.xPos = move.oldCol * board.tilesize;
+            move.piece.yPos = move.oldRow * board.tilesize;
+
+
+        }
+
+
+        return safeMoves;
+    }
 
 }

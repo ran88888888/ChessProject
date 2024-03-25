@@ -4,13 +4,13 @@ import pieces.Piece;
 
 import java.util.Objects;
 
-public class Move implements Comparable<Move>{
+public class Move implements Comparable<Move> {
     public int oldCol;
     public int oldRow;
     public int newCol;
     public int newRow;
 
-    public int score = 0;
+    public float score = 0;
 
     @Override
     public boolean equals(Object o) {
@@ -60,8 +60,10 @@ public class Move implements Comparable<Move>{
 
     @Override
     public int compareTo(Move o) {
-        return Integer.compare( o.score,this.score);
+        return (int) (o.score-this.score);
     }
+
+
 
 
 

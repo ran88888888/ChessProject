@@ -15,7 +15,7 @@ public class Knight extends Piece{
         this.yPos = row* board.tilesize;
         this.isWhite=isWhite;
         this.name = "Knight";
-        this.value = 3;
+        this.value = 320;
 
         this.sprite = sheet.getSubimage(3*sheetScale,isWhite ? 0 : sheetScale,sheetScale,sheetScale).getScaledInstance(board.tilesize,board.tilesize, BufferedImage.SCALE_SMOOTH);
     }

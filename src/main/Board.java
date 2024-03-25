@@ -42,6 +42,7 @@ public class Board extends JPanel {
     int custleMove = 0;
     Move lastMove;
     Piece tempDuckPiece = new Duck(this,0,0);
+    public boolean endGame = false;
 
 
 
@@ -95,7 +96,22 @@ public class Board extends JPanel {
         }
         return null;
     }
-
+    public  boolean isEndgame() {
+        int majorPieces = 0;
+        int minorPieces = 0;
+        for (Piece piece : this.piecesList) {
+            if (piece.name.equals("Queen")) {
+                majorPieces++;
+            } else if (piece.name.equals("Rook")) {
+                majorPieces++;
+            } else if (piece.name.equals("Bishop") || piece.name.equals("Knight")) {
+                minorPieces++;
+            }
+        }
+        // Consider it endgame if there are fewer than 2 major pieces and fewer than 4 minor pieces in total on the board,
+        // or other conditions that you might find appropriate for your engine's understanding of an endgame scenario.
+        return majorPieces < 2 && minorPieces < 4;
+    }
     public boolean checkingIfDuckInterapt(Move DuckMove,Move bestWhiteMove) {
         tempDuckPiece.col = duck.col;
         tempDuckPiece.row = duck.row;
@@ -172,6 +188,9 @@ public class Board extends JPanel {
 
 
     public void makeMove(Move move){
+        if (!endGame){
+            endGame = isEndgame();
+        }
         ArrayList<Move> allValid;
         if (!move.piece.name.equals("Duck")){
             duck.youCanPlayWithDuck = true;
@@ -197,6 +216,7 @@ public class Board extends JPanel {
         }
         if(move.piece.name.equals("King")) {
             moveKing(move);
+            setPieceMap(move);
         }
         else if(!move.piece.name.equals("Duck")){
             move.piece.col = move.newCol;
@@ -209,11 +229,6 @@ public class Board extends JPanel {
             bitBoardChange(move);
             setPieceMap(move);
         }
-
-
-
-
-
 
 
     }
@@ -240,6 +255,7 @@ public class Board extends JPanel {
 
         move.piece.isFirstMove = false;
         capture(move.captured);
+        //setPieceMap(move);
 
     }
 
@@ -269,6 +285,7 @@ public class Board extends JPanel {
 
         move.piece.isFirstMove = false;
         capture(move.captured);
+        //setPieceMap(move);
 
     }
     public void unMakeMove(Move move){
