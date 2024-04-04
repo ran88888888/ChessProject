@@ -156,8 +156,9 @@ public class Board extends JPanel {
         }
         if(move.piece.name.equals("King")) {
             moveKing(move);
+            setPieceMap(move);
         }
-        else if(!move.piece.name.equals("Duck")){
+        else if(!move.piece.name.equals("Duck")&&!move.piece.name.equals("Pawn")){
             duck.youCanPlayWithDuck = true;
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
@@ -166,9 +167,10 @@ public class Board extends JPanel {
             custleMove = 0;
             move.piece.isFirstMove = false;
             capture(move.captured);
+            setPieceMap(move);
         }
         bitBoardChange(move);
-        setPieceMap(move);
+
 
         if (!move.piece.isWhite){
             allValid = allValidMoves(whitePlayer);
@@ -177,6 +179,7 @@ public class Board extends JPanel {
                 gameEnded(move);
             }
             else {
+                custleMove=0;
                 Move bestDuckMove = Evaluations.bestDuckMoveEval(allValid);
                 int colDuck = bestDuckMove.newCol;
                 int rowDuck = bestDuckMove.newRow;
@@ -218,7 +221,7 @@ public class Board extends JPanel {
             moveKing(move);
             setPieceMap(move);
         }
-        else if(!move.piece.name.equals("Duck")){
+        else if(!move.piece.name.equals("Duck")&&!move.piece.name.equals("Pawn")){
             move.piece.col = move.newCol;
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * tilesize;
@@ -276,11 +279,14 @@ public class Board extends JPanel {
         move.piece.yPos = move.newRow * tilesize;
 
         bitBoardChange(move);
-        //setPieceMap(move);
+
         //premotion
         colorIndex = move.piece.isWhite ? 0:7;
         if (move.newRow==colorIndex){
             promotionPawn(move);
+        }
+        else {
+            setPieceMap(move);
         }
 
         move.piece.isFirstMove = false;
@@ -293,37 +299,46 @@ public class Board extends JPanel {
     }
     private void promotionPawn(Move move) {
        int key = move.newRow*8+move.newCol;
+       int oldKey = move.oldRow*8+move.oldCol;
         switch (this.typeOfpro){
            case 4:
                piecesList.add(new Queen(this,move.newCol,move.newRow,move.piece.isWhite));
                if (move.piece.isWhite) {
                    whitePlayer.pieces.put(key, new Queen(this, move.newCol, move.newRow, move.piece.isWhite));
+                   whitePlayer.pieces.remove(oldKey);
                } else {
                    blackPlayer.pieces.put(key, new Queen(this, move.newCol, move.newRow, move.piece.isWhite));
+                   blackPlayer.pieces.remove(oldKey);
                }
                break;
            case 3:
                piecesList.add(new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
                if (move.piece.isWhite) {
                    whitePlayer.pieces.put(key, new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
+                   whitePlayer.pieces.remove(oldKey);
                } else {
                    blackPlayer.pieces.put(key, new Knight(this,move.newCol,move.newRow,move.piece.isWhite));
+                   blackPlayer.pieces.remove(oldKey);
                }
                break;
            case 2:
                piecesList.add(new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
                if (move.piece.isWhite) {
                    whitePlayer.pieces.put(key, new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
+                   whitePlayer.pieces.remove(oldKey);
                } else {
                    blackPlayer.pieces.put(key, new Bishop(this,move.newCol,move.newRow,move.piece.isWhite));
+                   blackPlayer.pieces.remove(oldKey);
                }
                break;
            case 1:
                piecesList.add(new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
                if (move.piece.isWhite) {
                    whitePlayer.pieces.put(key, new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
+                   whitePlayer.pieces.remove(oldKey);
                } else {
                    blackPlayer.pieces.put(key, new Rook(this,move.newCol,move.newRow,move.piece.isWhite));
+                   blackPlayer.pieces.remove(oldKey);
                }
                break;
        }

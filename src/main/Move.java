@@ -17,7 +17,7 @@ public class Move implements Comparable<Move> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Move move = (Move) o;
-        return oldCol == move.oldCol && oldRow == move.oldRow && newCol == move.newCol && newRow == move.newRow && score == move.score && Objects.equals(piece, move.piece) && Objects.equals(captured, move.captured);
+        return oldCol == move.oldCol && oldRow == move.oldRow && newCol == move.newCol && newRow == move.newRow &&  Objects.equals(piece, move.piece) && Objects.equals(captured, move.captured);
     }
 
     @Override

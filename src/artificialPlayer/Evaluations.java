@@ -73,7 +73,7 @@ public class Evaluations {
             {-20, -30, -30, -40, -40, -30, -30, -20},
             {-10, -20, -20, -20, -20, -20, -20, -10},
             { 20,  20,   0,   0,   0,   0,  20,  20},
-            { 20,  30,  10,   0,   0,  10,  30,  20}
+            { 20,  30,  5,   0,   0,  5,  30,  20}
     };
 
     private static int[][] kingEndgameEval = {
@@ -177,30 +177,33 @@ public class Evaluations {
                     if (moveScore>0){
                         pieceDefebdPiece(moveList,p);
                         moveOp = p.getPossibleMoves(p.col, p.row);
-                        while(moveOp.size()>0&&subAttackPieces.size()!=0){
+                        while(moveOp.size()>0){
                             opMove = new Move(board,p,moveOp.get(moveOp.size()-1)%8,moveOp.get(moveOp.size()-1)/8);
-                            opMove.piece.col = opMove.newCol;
-                            opMove.piece.row = opMove.newRow;
-                            opMove.piece.xPos = opMove.newCol * board.tilesize;
-                            opMove.piece.yPos = opMove.newRow * board.tilesize;
-                            subAttackPieces = board.checkScanner.isAPieceCanGetHit(opMove.piece);
-                            moveOp.remove(moveOp.size()-1);
-                            opMove.piece.col = opMove.oldCol;
-                            opMove.piece.row = opMove.oldRow;
-                            opMove.piece.xPos = opMove.oldCol * board.tilesize;
-                            opMove.piece.yPos = opMove.oldRow * board.tilesize;
-                        }
+                            if (board.isValidPossibleMove(opMove)){
+                                opMove.piece.col = opMove.newCol;
+                                opMove.piece.row = opMove.newRow;
+                                opMove.piece.xPos = opMove.newCol * board.tilesize;
+                                opMove.piece.yPos = opMove.newRow * board.tilesize;
+                                subAttackPieces = board.checkScanner.isAPieceCanGetHit(opMove.piece);
 
-                        if (opMove!=null){
-                            if (subAttackPieces.size()==0){
-                                int i = 0;
-                                while (i<moveList.size()){
-                                    if (moveList.get(i).equals(opMove)){
-                                        moveList.get(i).score += moveScore;
+                                opMove.piece.col = opMove.oldCol;
+                                opMove.piece.row = opMove.oldRow;
+                                opMove.piece.xPos = opMove.oldCol * board.tilesize;
+                                opMove.piece.yPos = opMove.oldRow * board.tilesize;
+
+                                if (subAttackPieces.size()==0){
+                                    int i = 0;
+                                    while (i<moveList.size()){
+                                        if (moveList.get(i).equals(opMove)){
+                                            moveList.get(i).score += moveScore;
+                                        }
+                                        i++;
                                     }
-                                    i++;
                                 }
                             }
+                            moveOp.remove(moveOp.size()-1);
+
+
                         }
                     }
                 }
@@ -368,6 +371,9 @@ public class Evaluations {
     }
     public static void isMovePutDamage(ArrayList<Move>moveList){
         ArrayList<Piece>attackingPieces;
+        ArrayList<Piece>defendPieces;
+        Piece defendedPieceopSides ;
+        int i;
         float scoreCount;
         for (Move move:moveList){
             move.piece.col = move.newCol;
@@ -384,8 +390,32 @@ public class Evaluations {
                     if (scoreCount>0){
                         move.score = move.score - scoreCount;
                     }
+                    else {
+                        defendedPieceopSides = move.piece;
+                        defendedPieceopSides.isWhite =!move.piece.isWhite;
+                        defendPieces = board.checkScanner.isAPieceCanGetHit(defendedPieceopSides);
+                        for (i = 0;i<defendPieces.size();i++){
+                            if (!defendPieces.get(i).name.equals("Pawn")){
+                                i=defendPieces.size()+1;
+                            }
+                        }
+                        if (i!=defendPieces.size()+1){
+                            for (Piece pawnPiece:defendPieces){
+                                Move pawnMove = new Move(board,pawnPiece, move.newCol, move.newRow);
+                                if (isDoubledPwan(pawnMove)){
+                                    move.score = move.score-50;
+                                }
+                                if(isIsolatePawn(pawnMove)){
+                                    move.score = move.score-50;
+                                }
+                            }
+                        }
+                        defendedPieceopSides.isWhite =!defendedPieceopSides.isWhite;
+                    }
+
                 }
             }
+
             Move tempMove = new Move(board,move.piece,move.oldCol,move.oldRow);
             board.setPieceMap(tempMove);
             move.piece.col = move.oldCol;
@@ -398,7 +428,9 @@ public class Evaluations {
         for(int i = 0;i<8;i++) {
             Piece anotherPawn = board.getPiece(move.newCol, i);
             if (anotherPawn != null && anotherPawn.name.equals("Pawn")&&board.sameTeam(move.piece,anotherPawn)) {
-                return true;
+                if (!anotherPawn.equals(move.piece)){
+                    return true;
+                }
             }
         }
         return false;
@@ -410,11 +442,16 @@ public class Evaluations {
         for (int i = -1 ;i<2;i=i+2){
             anotherPawn = board.getPiece(move.newCol+i,move.newRow+colorIndex);
             if (anotherPawn!=null&& anotherPawn.name.equals("Pawn")&&board.sameTeam(move.piece,anotherPawn)){
-                found = 1;
+                if (!anotherPawn.equals(move.piece)){
+                    found = 1;
+                }
+
             }
             anotherPawn = board.getPiece(move.newCol+i,move.newRow+(colorIndex*2));
             if (anotherPawn!=null&& anotherPawn.name.equals("Pawn")&&board.sameTeam(move.piece,anotherPawn)){
-                found = 1;
+                if (!anotherPawn.equals(move.piece)){
+                    found = 1;
+                }
             }
         }
         if (found==0){
@@ -473,6 +510,24 @@ public class Evaluations {
             }
         }
     }
+    public static void captureToDefend(ArrayList<Move> moveList){
+        ArrayList<Integer>attackPiecePosibleMoves;
+        for (Move move:moveList){
+            if (move.captured!=null){
+               attackPiecePosibleMoves = move.captured.getPossibleMoves(move.captured.col,move.captured.row);
+               for (int tile:attackPiecePosibleMoves){
+                   int col = tile%board.cols;
+                   int row = tile/board.rows;
+                   Move attackMove = new Move(board,move.captured,col,row);
+                   if (board.isValidPossibleMove(attackMove)){
+                       if (attackMove.captured!=null&&shouldMakeTrade(attackMove)>0){
+                           move.score = move.score+shouldMakeTrade(attackMove);
+                       }
+                   }
+               }
+            }
+        }
+    }
     public static Move bestMoveEval(ArrayList<Move>moveList){
         if (moveList.size()==0){
             return null;
@@ -483,8 +538,9 @@ public class Evaluations {
         willBeMatePrevent(moveList);
         bestPlaceToBe(moveList);
         isMovePutDamage(moveList);
-        //pawnStructure(moveList);
+        pawnStructure(moveList);
         pieceProtectPiece(moveList);
+        captureToDefend(moveList);
         // chose the best move
 
         Move bestMove = moveList.get((int) (Math.random()*moveList.size()));
