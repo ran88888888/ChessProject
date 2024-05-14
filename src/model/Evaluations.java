@@ -1,9 +1,5 @@
-package artificialPlayer;
+package model;
 
-import main.Board;
-import main.Move;
-import pieces.Pawn;
-import pieces.Piece;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,6 +118,14 @@ public class Evaluations {
         int found = 0;
 
         attackPieces = board.checkScanner.isAPieceCanGetHit(move.piece);
+        if (attackPieces.size()>1){
+            move.piece.col = move.oldCol;
+            move.piece.row = move.oldRow;
+            move.piece.xPos = move.oldCol * board.tilesize;
+            move.piece.yPos = move.oldRow * board.tilesize;
+            board.piecesList.add(move.captured);
+            return countScore-move.piece.value;
+        }
         for (Piece p:attackPieces){
             found = 0;
             Move tempMove = new Move(board,p,move.newCol,move.newRow);
@@ -170,7 +174,7 @@ public class Evaluations {
         for (Piece p:pieces.values()){
             attackPieces = board.checkScanner.isAPieceCanGetHit(p);
             subAttackPieces = board.checkScanner.isAPieceCanGetHit(p);
-            if (attackPieces.size()!=0){
+            if (!attackPieces.isEmpty()){
                 for (Piece attackP:attackPieces){
                     Move newMove = new Move(board,attackP,p.col,p.row);
                     moveScore = shouldMakeTrade(newMove);
@@ -178,12 +182,18 @@ public class Evaluations {
                         pieceDefebdPiece(moveList,p);
                         moveOp = p.getPossibleMoves(p.col, p.row);
                         while(moveOp.size()>0){
+                            int found = 0;
                             opMove = new Move(board,p,moveOp.get(moveOp.size()-1)%8,moveOp.get(moveOp.size()-1)/8);
+                            Piece capturedPiece;
                             if (board.isValidPossibleMove(opMove)){
                                 opMove.piece.col = opMove.newCol;
                                 opMove.piece.row = opMove.newRow;
                                 opMove.piece.xPos = opMove.newCol * board.tilesize;
                                 opMove.piece.yPos = opMove.newRow * board.tilesize;
+
+                                if (opMove.captured!=null){
+                                    board.capture(opMove.captured);
+                                }
                                 subAttackPieces = board.checkScanner.isAPieceCanGetHit(opMove.piece);
 
                                 opMove.piece.col = opMove.oldCol;
@@ -191,19 +201,46 @@ public class Evaluations {
                                 opMove.piece.xPos = opMove.oldCol * board.tilesize;
                                 opMove.piece.yPos = opMove.oldRow * board.tilesize;
 
-                                if (subAttackPieces.size()==0){
-                                    int i = 0;
-                                    while (i<moveList.size()){
-                                        if (moveList.get(i).equals(opMove)){
-                                            moveList.get(i).score += moveScore;
-                                        }
-                                        i++;
-                                    }
+                                if (opMove.captured!=null){
+                                    capturedPiece = opMove.captured;
+                                    board.piecesList.add(capturedPiece);
+                                    int crow = capturedPiece.row;
+                                    int ccol = capturedPiece.col;
+                                    Player capturePlayer =capturedPiece.isWhite?board.whitePlayer:board.blackPlayer;
+                                    capturePlayer.pieces.put((crow*8)+ccol,capturedPiece);
                                 }
+
+                                if (subAttackPieces.size()<=1&&subAttackPieces.size()>=0){
+                                    if (subAttackPieces.size()==1){
+                                        ArrayList<Integer> temp;
+                                        found = 0;
+                                        Move tempMove = new Move(board,subAttackPieces.get(0),opMove.newCol, opMove.newRow);
+                                        temp = p.getPossibleMoves(p.col, p.row);
+                                        for (Integer i : temp) {
+                                            int col = i % 8;
+                                            int row = i / 8;
+                                            if (board.getPiece(col, row) == null) {
+                                                Move tempDuckMove = new Move(board, board.duck, col, row);
+                                                if (board.checkingIfDuckInterapt(tempDuckMove, tempMove)) {
+                                                    found = 1;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (subAttackPieces.size()==0 || found ==1){
+                                        int i = 0;
+                                        while (i<moveList.size()){
+                                            if (moveList.get(i).equals(opMove)){
+                                                moveList.get(i).score += moveScore;
+                                            }
+                                            i++;
+                                        }
+                                    }
+
+                                }
+
                             }
                             moveOp.remove(moveOp.size()-1);
-
-
                         }
                     }
                 }
@@ -287,6 +324,14 @@ public class Evaluations {
             aM.piece.row = aM.oldRow;
             aM.piece.xPos = aM.oldCol * board.tilesize;
             aM.piece.yPos = aM.oldRow * board.tilesize;
+
+            if (aM.captured!=null){
+                Piece capturedPiece = aM.captured;
+                int crow = capturedPiece.row;
+                int ccol = capturedPiece.col;
+                Player capturePlayer =capturedPiece.isWhite?board.whitePlayer:board.blackPlayer;
+                capturePlayer.pieces.put((crow*8)+ccol,capturedPiece);
+            }
 
 
         }
@@ -528,6 +573,31 @@ public class Evaluations {
             }
         }
     }
+    public static void mateApertunetys(ArrayList<Move> moveList){
+        Player attackPlayer = moveList.get(0).piece.isWhite?board.whitePlayer:board.blackPlayer;
+        ArrayList<Move>enemyMoves;
+        ArrayList<Move>deffensMoves = new ArrayList<>();
+        for(Move move:moveList){
+            move.piece.col = move.newCol;
+            move.piece.row = move.newRow;
+            move.piece.xPos = move.newCol * board.tilesize;
+            move.piece.yPos = move.newRow * board.tilesize;
+            board.setPieceMap(move);
+
+            enemyMoves = board.allValidMoves(attackPlayer);
+
+            if (enemyMoves.size()==0){
+                deffensMoves.add(move);
+            }
+            Move tempMove = new Move(board,move.piece,move.oldCol,move.oldRow);
+            board.setPieceMap(tempMove);
+            move.piece.col = move.oldCol;
+            move.piece.row = move.oldRow;
+            move.piece.xPos = move.oldCol * board.tilesize;
+            move.piece.yPos = move.oldRow * board.tilesize;
+        }
+        moveList = deffensMoves;
+    }
     public static Move bestMoveEval(ArrayList<Move>moveList){
         if (moveList.size()==0){
             return null;
@@ -541,9 +611,10 @@ public class Evaluations {
         pawnStructure(moveList);
         pieceProtectPiece(moveList);
         captureToDefend(moveList);
+        mateApertunetys(moveList);
         // chose the best move
 
-        Move bestMove = moveList.get((int) (Math.random()*moveList.size()));
+        Move bestMove;
 
         for (Move m:moveList){
             if (m.captured!=null && m.captured.name.equals("King")){
@@ -557,31 +628,31 @@ public class Evaluations {
         return moveList.get(0);
     }
     public static Move bestDuckMoveEval(ArrayList<Move>moveList) {
-        Move bestDuckMove = null;
-        ArrayList<Move> moveListTemp = moveList;
-        Move bestWhiteMove;
-        ArrayList<Integer> temp;
-        while (bestDuckMove == null) {
-            bestWhiteMove = bestMoveEval(moveListTemp);
-            if (bestWhiteMove==null){
-                return null;
-            }
-            temp = bestWhiteMove.piece.getPossibleMoves(bestWhiteMove.piece.col, bestWhiteMove.piece.row);
-            for (Integer i : temp) {
-                int col = i % 8;
-                int row = i / 8;
-                if (board.getPiece(col, row) == null) {
-                    Move tempMove = new Move(board, board.duck, col, row);
-                    if (board.checkingIfDuckInterapt(tempMove, bestWhiteMove)) {
-                        bestDuckMove = tempMove;
-                        return bestDuckMove;
+            Move bestDuckMove = null;
+            ArrayList<Move> moveListTemp = moveList;
+            Move bestWhiteMove;
+            ArrayList<Integer> temp;
+            while (bestDuckMove == null) {
+                bestWhiteMove = bestMoveEval(moveListTemp);
+                if (bestWhiteMove==null){
+                    return null;
+                }
+                temp = bestWhiteMove.piece.getPossibleMoves(bestWhiteMove.piece.col, bestWhiteMove.piece.row);
+                for (Integer i : temp) {
+                    int col = i % 8;
+                    int row = i / 8;
+                    if (board.getPiece(col, row) == null) {
+                        Move tempMove = new Move(board, board.duck, col, row);
+                        if (board.checkingIfDuckInterapt(tempMove, bestWhiteMove)) {
+                            bestDuckMove = tempMove;
+                            return bestDuckMove;
+                        }
                     }
                 }
-            }
-            moveListTemp.remove(0);
+                moveListTemp.remove(0);
 
+            }
+            return bestDuckMove;
         }
-        return bestDuckMove;
-    }
 
 }

@@ -1,6 +1,4 @@
-package pieces;
-
-import main.Board;
+package model;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

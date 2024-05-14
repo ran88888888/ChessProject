@@ -1,6 +1,8 @@
-package main;
+package controller;
 
-import pieces.Piece;
+import model.Board;
+import model.Move;
+import model.Piece;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

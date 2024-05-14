@@ -1,6 +1,4 @@
-package main;
-
-import pieces.Piece;
+package model;
 
 import java.util.Objects;
 
@@ -28,7 +26,7 @@ public class Move implements Comparable<Move> {
     public Piece piece;
     public Piece captured;
 
-    public Move(Board board,Piece piece,int newCol,int newRow){
+    public Move(Board board, Piece piece, int newCol, int newRow){
         this.oldCol = piece.col;
         this.oldRow = piece.row;
         this.newCol = newCol;

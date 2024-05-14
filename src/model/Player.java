@@ -1,6 +1,4 @@
-package main;
-
-import pieces.Piece;
+package model;
 
 import java.util.*;
 
@@ -13,7 +11,7 @@ public class Player {
     }
 
     public Piece getPiece(int col, int row) {
-        Integer key = row*Board.cols+col;
+        Integer key = row* Board.cols+col;
         return pieces.containsKey(key) ? pieces.get(key) : null;
     }
 }

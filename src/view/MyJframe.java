@@ -1,7 +1,6 @@
-package main;
+package view;
 
-import viewPanels.SidePanel;
-import viewPanels.CupPanel;
+import model.Board;
 
 import javax.swing.*;
 import java.awt.*;

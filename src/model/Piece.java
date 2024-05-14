@@ -1,7 +1,4 @@
-package pieces;
-
-import main.Board;
-import main.Move;
+package model;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

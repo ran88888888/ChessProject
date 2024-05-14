@@ -1,8 +1,9 @@
-package main;
+package model;
 
 
-import artificialPlayer.Evaluations;
-import pieces.*;
+import controller.CheckScanner;
+import controller.Input;
+
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
@@ -22,7 +23,7 @@ public class Board extends JPanel {
     HashMap<String, Method> moveState = new HashMap<>();
     public int enPassantTile = -1;
     public int whiteturn = 1;
-    protected int typeOfpro;
+    public int typeOfpro;
     public int gameOver = 0;
     public Duck duck =new Duck(this,4,3);
     public BitBoard rookBitBoard;
@@ -108,7 +109,7 @@ public class Board extends JPanel {
                 minorPieces++;
             }
         }
-        // Consider it endgame if there are fewer than 2 major pieces and fewer than 4 minor pieces in total on the board,
+        // Consider it endgame if there are fewer than 2 major model.pieces and fewer than 4 minor model.pieces in total on the board,
         // or other conditions that you might find appropriate for your engine's understanding of an endgame scenario.
         return majorPieces < 2 && minorPieces < 4;
     }
@@ -561,6 +562,9 @@ public class Board extends JPanel {
         if (checkScanner.isKingChecked(move)){
             return false;
         }
+        if (getPiece(move.newCol,move.newRow)!=null&&getPiece(move.newCol,move.newRow).isWhite==move.piece.isWhite){
+            return false;
+        }
         return true;
     }
     public void capture(Piece piece){
@@ -670,7 +674,7 @@ public class Board extends JPanel {
 
     public void addPieces(){
 
-        //black pieces
+        //black model.pieces
         piecesList.add(new Rook(this,0,0,false));
         piecesList.add(new Knight(this,1,0,false));
         piecesList.add(new Bishop(this,2,0,false));
@@ -697,7 +701,7 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,5,6,true));
         piecesList.add(new Pawn(this,6,6,true));
         piecesList.add(new Pawn(this,7,6,true));
-        //white pieces
+        //white model.pieces
         piecesList.add(new Rook(this,0,7,true));
         piecesList.add(new Knight(this,1,7,true));
         piecesList.add(new Bishop(this,2,7,true));
@@ -714,10 +718,10 @@ public class Board extends JPanel {
 //        piecesList.add(new King(this,0,7,true));
 //        piecesList.add(new Queen(this,3,7,false));
 //        piecesList.add(new Pawn(this,7,1,false));
-//        blackPlayer.pieces.put(1,piecesList.get(0));
-//        whitePlayer.pieces.put(56,piecesList.get(1));
-//        blackPlayer.pieces.put(60,piecesList.get(2));
-//        blackPlayer.pieces.put(15,piecesList.get(3));
+//        blackPlayer.model.pieces.put(1,piecesList.get(0));
+//        whitePlayer.model.pieces.put(56,piecesList.get(1));
+//        blackPlayer.model.pieces.put(60,piecesList.get(2));
+//        blackPlayer.model.pieces.put(15,piecesList.get(3));
 
 
         //duck
@@ -754,7 +758,7 @@ public class Board extends JPanel {
                 }
             }
         }
-        //paint pieces
+        //paint model.pieces
         for (Piece p: piecesList){
             p.paint(g2d);
         }
