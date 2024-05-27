@@ -674,7 +674,7 @@ public class Board extends JPanel {
 
     public void addPieces(){
 
-        //black model.pieces
+        //black pieces
         piecesList.add(new Rook(this,0,0,false));
         piecesList.add(new Knight(this,1,0,false));
         piecesList.add(new Bishop(this,2,0,false));
@@ -701,7 +701,7 @@ public class Board extends JPanel {
         piecesList.add(new Pawn(this,5,6,true));
         piecesList.add(new Pawn(this,6,6,true));
         piecesList.add(new Pawn(this,7,6,true));
-        //white model.pieces
+        //white pieces
         piecesList.add(new Rook(this,0,7,true));
         piecesList.add(new Knight(this,1,7,true));
         piecesList.add(new Bishop(this,2,7,true));

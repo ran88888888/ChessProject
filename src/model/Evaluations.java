@@ -179,78 +179,82 @@ public class Evaluations {
                     Move newMove = new Move(board,attackP,p.col,p.row);
                     moveScore = shouldMakeTrade(newMove);
                     if (moveScore>0){
+                        defendThatPiece(moveList,p,moveScore);
                         pieceDefebdPiece(moveList,p);
-                        moveOp = p.getPossibleMoves(p.col, p.row);
-                        while(moveOp.size()>0){
-                            int found = 0;
-                            opMove = new Move(board,p,moveOp.get(moveOp.size()-1)%8,moveOp.get(moveOp.size()-1)/8);
-                            Piece capturedPiece;
-                            if (board.isValidPossibleMove(opMove)){
-                                opMove.piece.col = opMove.newCol;
-                                opMove.piece.row = opMove.newRow;
-                                opMove.piece.xPos = opMove.newCol * board.tilesize;
-                                opMove.piece.yPos = opMove.newRow * board.tilesize;
-
-                                if (opMove.captured!=null){
-                                    board.capture(opMove.captured);
-                                }
-                                subAttackPieces = board.checkScanner.isAPieceCanGetHit(opMove.piece);
-
-                                opMove.piece.col = opMove.oldCol;
-                                opMove.piece.row = opMove.oldRow;
-                                opMove.piece.xPos = opMove.oldCol * board.tilesize;
-                                opMove.piece.yPos = opMove.oldRow * board.tilesize;
-
-                                if (opMove.captured!=null){
-                                    capturedPiece = opMove.captured;
-                                    board.piecesList.add(capturedPiece);
-                                    int crow = capturedPiece.row;
-                                    int ccol = capturedPiece.col;
-                                    Player capturePlayer =capturedPiece.isWhite?board.whitePlayer:board.blackPlayer;
-                                    capturePlayer.pieces.put((crow*8)+ccol,capturedPiece);
-                                }
-
-                                if (subAttackPieces.size()<=1&&subAttackPieces.size()>=0){
-                                    if (subAttackPieces.size()==1){
-                                        ArrayList<Integer> temp;
-                                        found = 0;
-                                        Move tempMove = new Move(board,subAttackPieces.get(0),opMove.newCol, opMove.newRow);
-                                        temp = p.getPossibleMoves(p.col, p.row);
-                                        for (Integer i : temp) {
-                                            int col = i % 8;
-                                            int row = i / 8;
-                                            if (board.getPiece(col, row) == null) {
-                                                Move tempDuckMove = new Move(board, board.duck, col, row);
-                                                if (board.checkingIfDuckInterapt(tempDuckMove, tempMove)) {
-                                                    found = 1;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (subAttackPieces.size()==0 || found ==1){
-                                        int i = 0;
-                                        while (i<moveList.size()){
-                                            if (moveList.get(i).equals(opMove)){
-                                                moveList.get(i).score += moveScore;
-                                            }
-                                            i++;
-                                        }
-                                    }
-
-                                }
-
-                            }
-                            moveOp.remove(moveOp.size()-1);
-                        }
                     }
                 }
             }
         }
     }
+    public static void defendThatPiece(ArrayList<Move>moveList,Piece pieceToDefend,float moveScore){
+        ArrayList<Piece>subAttackPieces ;
+        ArrayList<Integer> moveOp;
+        Move opMove = null;
+        moveOp = pieceToDefend.getPossibleMoves(pieceToDefend.col, pieceToDefend.row);
+        while(moveOp.size()>0){
+            int found = 0;
+            opMove = new Move(board,pieceToDefend,moveOp.get(moveOp.size()-1)%8,moveOp.get(moveOp.size()-1)/8);
+            Piece capturedPiece;
+            if (board.isValidPossibleMove(opMove)){
+                opMove.piece.col = opMove.newCol;
+                opMove.piece.row = opMove.newRow;
+                opMove.piece.xPos = opMove.newCol * board.tilesize;
+                opMove.piece.yPos = opMove.newRow * board.tilesize;
+
+                if (opMove.captured!=null){
+                    board.capture(opMove.captured);
+                }
+                subAttackPieces = board.checkScanner.isAPieceCanGetHit(opMove.piece);
+
+                opMove.piece.col = opMove.oldCol;
+                opMove.piece.row = opMove.oldRow;
+                opMove.piece.xPos = opMove.oldCol * board.tilesize;
+                opMove.piece.yPos = opMove.oldRow * board.tilesize;
+
+                if (opMove.captured!=null){
+                    capturedPiece = opMove.captured;
+                    board.piecesList.add(capturedPiece);
+                    int crow = capturedPiece.row;
+                    int ccol = capturedPiece.col;
+                    Player capturePlayer =capturedPiece.isWhite?board.whitePlayer:board.blackPlayer;
+                    capturePlayer.pieces.put((crow*8)+ccol,capturedPiece);
+                }
+
+                if (subAttackPieces.size()<=1&&subAttackPieces.size()>=0){
+                    if (subAttackPieces.size()==1){
+                        ArrayList<Integer> temp;
+                        found = 0;
+                        Move tempMove = new Move(board,subAttackPieces.get(0),opMove.newCol, opMove.newRow);
+                        temp = pieceToDefend.getPossibleMoves(pieceToDefend.col, pieceToDefend.row);
+                        for (Integer i : temp) {
+                            int col = i % 8;
+                            int row = i / 8;
+                            if (board.getPiece(col, row) == null) {
+                                Move tempDuckMove = new Move(board, board.duck, col, row);
+                                if (board.checkingIfDuckInterapt(tempDuckMove, tempMove)) {
+                                    found = 1;
+                                }
+                            }
+                        }
+                    }
+                    if (subAttackPieces.size()==0 || found ==1){
+                        int i = 0;
+                        while (i<moveList.size()){
+                            if (moveList.get(i).equals(opMove)){
+                                moveList.get(i).score += moveScore;
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+            moveOp.remove(moveOp.size()-1);
+        }
+    }
     public static void pieceDefebdPiece(ArrayList<Move>moveList,Piece pieceToDefend){
         ArrayList<Piece>attackPieces;
         ArrayList<Integer>posMove;
-        float maxScore = 0;
+
         attackPieces = board.checkScanner.isAPieceCanGetHit(pieceToDefend);
         float moveScore;
         for (Move move:moveList){
@@ -258,18 +262,14 @@ public class Evaluations {
             move.piece.row = move.newRow;
             move.piece.xPos = move.newCol * board.tilesize;
             move.piece.yPos = move.newRow * board.tilesize;
-            maxScore = 0;
+
             for (Piece attackP:attackPieces){
                 Move newMove = new Move(board,attackP,pieceToDefend.col,pieceToDefend.row);
                 moveScore = shouldMakeTrade(newMove);
                 if (moveScore<=0){
-                    moveScore = moveScore*-1;
-                    if (maxScore<moveScore){
-                        maxScore = moveScore;
-                    }
+                    move.score+=pieceToDefend.value;
                 }
             }
-            move.score+=maxScore;
             move.piece.col = move.oldCol;
             move.piece.row = move.oldRow;
             move.piece.xPos = move.oldCol * board.tilesize;
@@ -504,7 +504,7 @@ public class Evaluations {
         }
         return false;
     }
-    public static void pieceProtectPiece(ArrayList<Move>moveList){
+    public static void pieceAlreadyProtect(ArrayList<Move>moveList){
         float maxScore;
 
         ArrayList<Piece>attackingPieces;
@@ -538,7 +538,12 @@ public class Evaluations {
                     }
                 }
             }
-            move.score = move.score+beforeScore-newScore;
+            if (newScore > beforeScore){
+                move.score = move.score - newScore;
+            }
+            if (beforeScore > newScore){
+                move.score = move.score +beforeScore;
+            }
         }
     }
     public static void pawnStructure(ArrayList<Move>moveList){
@@ -598,20 +603,40 @@ public class Evaluations {
         }
         moveList = deffensMoves;
     }
+    public static void promotionFinder(ArrayList<Move> moveList){
+        int colorIndex = moveList.get(0).piece.isWhite?0:7;
+        for (Move aM:moveList){
+            if (aM.piece.name.equals("Pawn")&&aM.newRow-colorIndex==0){
+                aM.score = aM.score+900;
+            }
+        }
+    }
+    public static void calcDuckAfterMove(ArrayList<Move> moveList,Piece pieceToDefend){
+        board.piecesList.remove(board.duck);
+        ArrayList<Piece> attackPieces = board.checkScanner.isAPieceCanGetHit(pieceToDefend);
+        if (!attackPieces.isEmpty()){
+            for (Piece attackP:attackPieces) {
+                Move newMove = new Move(board, attackP, pieceToDefend.col, pieceToDefend.row);
+                float moveScore = shouldMakeTrade(newMove);
+            }
+        }
+    }
+
     public static Move bestMoveEval(ArrayList<Move>moveList){
         if (moveList.size()==0){
             return null;
         }
         //all the function that change the nove score
+        mateApertunetys(moveList);
+        willBeMatePrevent(moveList);
+        promotionFinder(moveList);
         picesValueEval(moveList);
         defendPiece(moveList);
-        willBeMatePrevent(moveList);
         bestPlaceToBe(moveList);
         isMovePutDamage(moveList);
         pawnStructure(moveList);
-        pieceProtectPiece(moveList);
+        pieceAlreadyProtect(moveList);
         captureToDefend(moveList);
-        mateApertunetys(moveList);
         // chose the best move
 
         Move bestMove;
